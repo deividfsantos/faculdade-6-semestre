@@ -22,7 +22,7 @@ class Main {
             "1 1 1 0 1 0 0 0 0 1 1 1\n" +
             "1 1 1 0 0 0 0 1 0 0 0 S";
 
-    private static final int TAM_POPULACAO = 13;
+    private static final int TAM_POPULACAO = 15;
 
     private static int[][] populacao;
 
@@ -62,7 +62,7 @@ class Main {
     }
 
     private static void mutacao(Random rand) {
-        if (rand.nextInt(4) == 0) {
+        if (rand.nextInt(3) == 0) {
 //            System.out.println("Mutação");
             mutacao();
         }
@@ -134,20 +134,20 @@ class Main {
             pontosY.add(y);
 
             if (x < 0) {
-                resultado -= 70 * -x;
+                resultado -= 80 * -x;
             }
             if (y < 0) {
-                resultado -= 70 * -y;
+                resultado -= 80 * -y;
             }
             if (x > INDICE_MAX_LARGURA_TABULEIRO) {
-                resultado -= 70 * x - INDICE_MAX_LARGURA_TABULEIRO;
+                resultado -= 80 * x - INDICE_MAX_LARGURA_TABULEIRO;
             }
             if (y > INDICE_MAX_ALTURA_TABULEIRO) {
-                resultado -= 70 * y - INDICE_MAX_ALTURA_TABULEIRO;
+                resultado -= 80 * y - INDICE_MAX_ALTURA_TABULEIRO;
             }
 
-            descidaX -= 20 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
-            descidaY -= 20 * Math.pow(y, 2);
+            descidaX -= 25 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
+            descidaY -= 25 * Math.pow(y, 2);
 
             if (x <= INDICE_MAX_LARGURA_TABULEIRO && x >= 0 && y <= INDICE_MAX_ALTURA_TABULEIRO && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
@@ -280,7 +280,7 @@ class Main {
 
     public static void mutacao() {
         Random rand = new Random();
-        int quant = rand.nextInt(4) + 1;
+        int quant = rand.nextInt(5) + 1;
         for (int i = 0; i < quant; i++) {
             int individuo = rand.nextInt(TAM_POPULACAO);
             int posicao = rand.nextInt(tamanhoCaminhoMaximo);
