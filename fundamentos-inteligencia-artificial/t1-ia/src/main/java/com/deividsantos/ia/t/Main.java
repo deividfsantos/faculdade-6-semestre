@@ -46,7 +46,7 @@ class Main {
 
         //cria a população inicial
         init();
-
+        int i = 0;
         for (int g = 0; g < 200000; g++) {
 //            System.out.println("Geração: " + g);
             calculaAptidao();
@@ -57,7 +57,9 @@ class Main {
             crossover();
             populacao = intermediaria;
             mutacao(rand);
+            i++;
         }
+        System.out.println("Iterações: " + i);
         printMelhorCaminho();
     }
 
@@ -115,6 +117,7 @@ class Main {
         int descidaX = 0;
         int descidaY = 0;
         int contadorParede = 0;
+        int contadorExterno = 0;
         for (int passo : passosIndividuo) {
             if (passo == 0) {
                 x--;
@@ -136,15 +139,19 @@ class Main {
 
             if (x < 0) {
                 resultado -= 80 * -x;
+                contadorExterno++;
             }
             if (y < 0) {
                 resultado -= 80 * -y;
+                contadorExterno++;
             }
             if (x > INDICE_MAX_LARGURA_TABULEIRO) {
                 resultado -= 80 * x - INDICE_MAX_LARGURA_TABULEIRO;
+                contadorExterno++;
             }
             if (y > INDICE_MAX_ALTURA_TABULEIRO) {
                 resultado -= 80 * y - INDICE_MAX_ALTURA_TABULEIRO;
+                contadorExterno++;
             }
 
             descidaX -= 25 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
@@ -162,76 +169,20 @@ class Main {
                 }
             }
         }
-        if (contemS) {
-            resultado += 100000;
-        } else {
-            resultado -= 100000;
-        }
 
         if (!contemS) {
+            resultado -= 100000;
             resultado += descidaX;
             resultado += descidaY;
+        } else {
+            resultado += 100000;
         }
 
-
-        if (contemS && contadorParede == 0) {
+        if (contemS && contadorParede == 0 && contadorExterno < 30) {
             resultado = 1000000000;
         }
 
         return resultado;
-    }
-
-    private static void printMelhorCaminho() {
-        printMatriz();
-        int x = 0;
-        int y = INDICE_MAX_ALTURA_TABULEIRO;
-        int[] pontosX = new int[populacao[0].length - 2];
-        int[] pontosY = new int[populacao[0].length - 2];
-        for (int k = 0; k < populacao[0].length - 2; k++) {
-            int passo = populacao[0][k];
-            if (passo == 0) {
-                x--;
-            }
-            if (passo == 1) {
-                x++;
-            }
-            if (passo == 2) {
-                y++;
-            }
-            if (passo == 3) {
-                y--;
-            }
-
-            pontosX[k] = x;
-            pontosY[k] = y;
-        }
-
-        for (int i = matrizMovimento.length - 1; i >= 0; i--) {
-            for (int j = 0; j < matrizMovimento[i].length; j++) {
-                boolean printou = false;
-                boolean achouS = false;
-                for (int k = 0; k < pontosX.length; k++) {
-                    if (pontosX[k] == 11 && pontosY[k] == 0) {
-                        achouS = true;
-                    }
-                    if (j == pontosX[k] && pontosY[k] == i && !achouS) {
-                        System.out.print(ANSI_RED + matrizMovimento[i][j] + ANSI_RESET + " ");
-                        printou = true;
-                        break;
-                    }
-                }
-                if (!printou) {
-                    if (matrizMovimento[i][j] == 'E') {
-                        System.out.print(ANSI_RED + 'E' + ANSI_RESET + " ");
-                    } else if (achouS && matrizMovimento[i][j] == 'S') {
-                        System.out.print(ANSI_RED + 'S' + ANSI_RESET + " ");
-                    } else {
-                        System.out.print(matrizMovimento[i][j] + " ");
-                    }
-                }
-            }
-            System.out.println();
-        }
     }
 
 
@@ -290,7 +241,7 @@ class Main {
         int quant = rand.nextInt(5) + 1;
         for (int i = 0; i < quant; i++) {
             int individuo = rand.nextInt(TAM_POPULACAO);
-            int posicao = rand.nextInt(tamanhoCaminhoMaximo - 1) + 1;
+            int posicao = rand.nextInt(tamanhoCaminhoMaximo);
 
 //            System.out.println("Cromossomo " + individuo + " sofreu mutação na carga de indice " + posicao);
 
@@ -314,5 +265,58 @@ class Main {
             return true;
         }
         return false;
+    }
+
+    private static void printMelhorCaminho() {
+        printMatriz();
+        int x = 0;
+        int y = INDICE_MAX_ALTURA_TABULEIRO;
+        int[] pontosX = new int[populacao[0].length - 2];
+        int[] pontosY = new int[populacao[0].length - 2];
+        for (int k = 0; k < populacao[0].length - 2; k++) {
+            int passo = populacao[0][k];
+            if (passo == 0) {
+                x--;
+            }
+            if (passo == 1) {
+                x++;
+            }
+            if (passo == 2) {
+                y++;
+            }
+            if (passo == 3) {
+                y--;
+            }
+
+            pontosX[k] = x;
+            pontosY[k] = y;
+        }
+
+        for (int i = matrizMovimento.length - 1; i >= 0; i--) {
+            for (int j = 0; j < matrizMovimento[i].length; j++) {
+                boolean printou = false;
+                boolean achouS = false;
+                for (int k = 0; k < pontosX.length; k++) {
+                    if (pontosX[k] == 11 && pontosY[k] == 0) {
+                        achouS = true;
+                    }
+                    if (j == pontosX[k] && pontosY[k] == i && !achouS) {
+                        System.out.print(ANSI_RED + matrizMovimento[i][j] + ANSI_RESET + " ");
+                        printou = true;
+                        break;
+                    }
+                }
+                if (!printou) {
+                    if (matrizMovimento[i][j] == 'E') {
+                        System.out.print(ANSI_RED + 'E' + ANSI_RESET + " ");
+                    } else if (achouS && matrizMovimento[i][j] == 'S') {
+                        System.out.print(ANSI_RED + 'S' + ANSI_RESET + " ");
+                    } else {
+                        System.out.print(matrizMovimento[i][j] + " ");
+                    }
+                }
+            }
+            System.out.println();
+        }
     }
 }
