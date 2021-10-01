@@ -22,7 +22,7 @@ class Main {
             "1 1 1 0 1 0 0 0 0 1 1 1\n" +
             "1 1 1 0 0 0 0 1 0 0 0 S";
 
-    private static final int TAM_POPULACAO = 51;
+    private static final int TAM_POPULACAO = 15;
 
     private static int[][] populacao;
 
@@ -287,10 +287,10 @@ class Main {
 
     public static void mutacao() {
         Random rand = new Random();
-        int quant = rand.nextInt(15) + 1;
+        int quant = rand.nextInt(5) + 1;
         for (int i = 0; i < quant; i++) {
             int individuo = rand.nextInt(TAM_POPULACAO);
-            int posicao = rand.nextInt(tamanhoCaminhoMaximo);
+            int posicao = rand.nextInt(tamanhoCaminhoMaximo - 1) + 1;
 
 //            System.out.println("Cromossomo " + individuo + " sofreu mutação na carga de indice " + posicao);
 
