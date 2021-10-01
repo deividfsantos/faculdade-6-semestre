@@ -22,7 +22,7 @@ class Main {
             "1 1 1 0 1 0 0 0 0 1 1 1\n" +
             "1 1 1 0 0 0 0 1 0 0 0 S";
 
-    private static final int TAM_POPULACAO = 15;
+    private static final int TAM_POPULACAO = 51;
 
     private static int[][] populacao;
 
@@ -114,6 +114,7 @@ class Main {
         boolean contemS = false;
         int descidaX = 0;
         int descidaY = 0;
+        int contadorParede = 0;
         for (int passo : passosIndividuo) {
             if (passo == 0) {
                 x--;
@@ -152,6 +153,7 @@ class Main {
             if (x <= INDICE_MAX_LARGURA_TABULEIRO && x >= 0 && y <= INDICE_MAX_ALTURA_TABULEIRO && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
                     resultado -= 8000;
+                    contadorParede++;
                 } else if (matrizMovimento[y][x] == '0') {
                     resultado += 8000;
                 } else if (matrizMovimento[y][x] == 'S') {
@@ -166,9 +168,14 @@ class Main {
             resultado -= 100000;
         }
 
-        if(!contemS){
+        if (!contemS) {
             resultado += descidaX;
             resultado += descidaY;
+        }
+
+
+        if (contemS && contadorParede == 0) {
+            resultado = 1000000000;
         }
 
         return resultado;
@@ -280,7 +287,7 @@ class Main {
 
     public static void mutacao() {
         Random rand = new Random();
-        int quant = rand.nextInt(5) + 1;
+        int quant = rand.nextInt(15) + 1;
         for (int i = 0; i < quant; i++) {
             int individuo = rand.nextInt(TAM_POPULACAO);
             int posicao = rand.nextInt(tamanhoCaminhoMaximo);
@@ -294,7 +301,7 @@ class Main {
     }
 
     public static boolean achouSolucao(int melhor) {
-        if (populacao[melhor][tamanhoCaminhoMaximo] > 100000000) {
+        if (populacao[melhor][tamanhoCaminhoMaximo] == 1000000000) {
             int soma = 0;
             System.out.println("\nAchou a solução ótima. Ela corresponde ao cromossomo :" + melhor);
             System.out.println("Solução:");
