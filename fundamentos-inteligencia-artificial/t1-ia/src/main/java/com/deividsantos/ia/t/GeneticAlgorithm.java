@@ -154,8 +154,8 @@ public class GeneticAlgorithm {
                 contadorExterno++;
             }
 
-            descidaX -= 200 * INDICE_MAX_LARGURA_TABULEIRO - x;
-            descidaY -= 200 * y;
+            descidaX -= 50 * INDICE_MAX_LARGURA_TABULEIRO - x;
+            descidaY -= 50 * y;
 
             if (x <= INDICE_MAX_LARGURA_TABULEIRO && x >= 0 && y <= INDICE_MAX_ALTURA_TABULEIRO && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
