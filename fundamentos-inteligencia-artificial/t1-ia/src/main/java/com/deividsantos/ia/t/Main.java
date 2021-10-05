@@ -47,7 +47,7 @@ class Main {
         //cria a população inicial
         init();
         int i = 0;
-        for (int g = 0; g < 200000; g++) {
+        for (int g = 0; g < 1000000; g++) {
 //            System.out.println("Geração: " + g);
             calculaAptidao();
 //            printMatriz();
@@ -58,14 +58,27 @@ class Main {
             populacao = intermediaria;
             mutacao(rand);
             i++;
+            printCaminhos(g);
         }
         System.out.println("Iterações: " + i);
-        printMelhorCaminho();
+    }
+
+    private static void printCaminhos(int g) {
+        if (g % 100000 == 0) {
+            printMatriz();
+            printMelhorCaminho();
+        }
+
+        if (g > 1000000 - 50) {
+            if (g == 1000000 - 1) {
+                printMatriz();
+            }
+            printMelhorCaminho();
+        }
     }
 
     private static void mutacao(Random rand) {
         if (rand.nextInt(3) == 0) {
-//            System.out.println("Mutação");
             mutacao();
         }
     }
@@ -138,19 +151,19 @@ class Main {
             pontosY.add(y);
 
             if (x < 0) {
-                resultado -= 80 * -x;
+                resultado -= 200 * -x;
                 contadorExterno++;
             }
             if (y < 0) {
-                resultado -= 80 * -y;
+                resultado -= 200 * -y;
                 contadorExterno++;
             }
             if (x > INDICE_MAX_LARGURA_TABULEIRO) {
-                resultado -= 80 * x - INDICE_MAX_LARGURA_TABULEIRO;
+                resultado -= 200 * x - INDICE_MAX_LARGURA_TABULEIRO;
                 contadorExterno++;
             }
             if (y > INDICE_MAX_ALTURA_TABULEIRO) {
-                resultado -= 80 * y - INDICE_MAX_ALTURA_TABULEIRO;
+                resultado -= 200 * y - INDICE_MAX_ALTURA_TABULEIRO;
                 contadorExterno++;
             }
 
@@ -162,7 +175,7 @@ class Main {
                     resultado -= 8000;
                     contadorParede++;
                 } else if (matrizMovimento[y][x] == '0') {
-                    resultado += 8000;
+                    resultado += 3000;
                 } else if (matrizMovimento[y][x] == 'S') {
                     contemS = true;
                     break;
@@ -243,8 +256,6 @@ class Main {
             int individuo = rand.nextInt(TAM_POPULACAO);
             int posicao = rand.nextInt(tamanhoCaminhoMaximo);
 
-//            System.out.println("Cromossomo " + individuo + " sofreu mutação na carga de indice " + posicao);
-
             int movimentacaoAleatoria = rand.nextInt(4);
             populacao[individuo][posicao] = movimentacaoAleatoria;
         }
@@ -268,7 +279,6 @@ class Main {
     }
 
     private static void printMelhorCaminho() {
-        printMatriz();
         int x = 0;
         int y = INDICE_MAX_ALTURA_TABULEIRO;
         int[] pontosX = new int[populacao[0].length - 2];
