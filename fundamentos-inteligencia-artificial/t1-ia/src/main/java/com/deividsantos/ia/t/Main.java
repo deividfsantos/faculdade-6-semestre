@@ -47,17 +47,23 @@ class Main {
         //cria a população inicial
         init();
         int i = 0;
-        for (int g = 0; g < 500000; g++) {
-            calculaAptidao();
-            melhor = getBest();
-            if (achouSolucao(melhor)) break;
-            crossover();
-            populacao = intermediaria;
-            mutacao(rand);
-            i++;
-            printCaminhos(g);
+        boolean achouSolucao = false;
+        while (!achouSolucao) {
+            for (int g = 0; g < 500000; g++) {
+                calculaAptidao();
+                melhor = getBest();
+                if (achouSolucao(melhor)) {
+                    achouSolucao = true;
+                    break;
+                }
+                crossover();
+                populacao = intermediaria;
+                mutacao(rand);
+                i++;
+//                printCaminhos(g);
+            }
+            System.out.println("Iterações: " + i);
         }
-        System.out.println("Iterações: " + i);
     }
 
     private static void printCaminhos(int g) {
