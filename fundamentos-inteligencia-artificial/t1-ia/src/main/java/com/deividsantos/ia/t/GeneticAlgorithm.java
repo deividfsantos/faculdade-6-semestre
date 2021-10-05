@@ -8,22 +8,16 @@ public class GeneticAlgorithm {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[31m";
 
+    private static int[][] populacao;
+    private static final int TAM_POPULACAO = 23;
+    private static final int LARGURA_TABULEIRO = 12;
+    private static final int ALTURA_TABULEIRO = 12;
+    private static final Integer TOTAL_ITERACOES = 500000;
+
     private final String carga;
     private final int tamanhoCaminhoMaximo;
-    private static final int TAM_POPULACAO = 23;
-
-    private static int[][] populacao;
-
-    private static int[][] intermediaria;
-
-    public static final int LARGURA_TABULEIRO = 12;
-    public static final int ALTURA_TABULEIRO = 12;
-
-    public static final int INDICE_MAX_LARGURA_TABULEIRO = LARGURA_TABULEIRO - 1;
-    public static final int INDICE_MAX_ALTURA_TABULEIRO = ALTURA_TABULEIRO - 1;
-
+    private int[][] intermediaria;
     private char[][] matrizMovimento;
-    private static final Integer TOTAL_ITERACOES = 500000;
 
     public GeneticAlgorithm(String carga) {
         this.carga = carga;
@@ -106,7 +100,7 @@ public class GeneticAlgorithm {
     public int aptidao(int indiceIndividuo) {
         int[] passosIndividuo = populacao[indiceIndividuo];
         int x = 0;
-        int y = INDICE_MAX_ALTURA_TABULEIRO;
+        int y = ALTURA_TABULEIRO - 1;
         int resultado = 0;
 
         List<Integer> pontosX = new ArrayList<>();
@@ -145,19 +139,19 @@ public class GeneticAlgorithm {
                 resultado -= 5000 * -y;
                 contadorExterno++;
             }
-            if (x > INDICE_MAX_LARGURA_TABULEIRO) {
-                resultado -= 5000 * x - INDICE_MAX_LARGURA_TABULEIRO;
+            if (x > LARGURA_TABULEIRO - 1) {
+                resultado -= 5000 * x - LARGURA_TABULEIRO - 1;
                 contadorExterno++;
             }
-            if (y > INDICE_MAX_ALTURA_TABULEIRO) {
-                resultado -= 5000 * y - INDICE_MAX_ALTURA_TABULEIRO;
+            if (y > ALTURA_TABULEIRO - 1) {
+                resultado -= 5000 * y - ALTURA_TABULEIRO - 1;
                 contadorExterno++;
             }
 
-            descidaX -= 50 * INDICE_MAX_LARGURA_TABULEIRO - x;
+            descidaX -= 50 * LARGURA_TABULEIRO - 1 - x;
             descidaY -= 50 * y;
 
-            if (x <= INDICE_MAX_LARGURA_TABULEIRO && x >= 0 && y <= INDICE_MAX_ALTURA_TABULEIRO && y >= 0) {
+            if (x <= LARGURA_TABULEIRO - 1 && x >= 0 && y <= ALTURA_TABULEIRO - 1 && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
                     resultado -= 15000;
                     contadorParede++;
@@ -262,7 +256,7 @@ public class GeneticAlgorithm {
 
     private void printMelhorCaminho(int melhorCaminho) {
         int x = 0;
-        int y = INDICE_MAX_ALTURA_TABULEIRO;
+        int y = ALTURA_TABULEIRO - 1;
         int[] pontosX = new int[populacao[melhorCaminho].length - 2];
         int[] pontosY = new int[populacao[melhorCaminho].length - 2];
         for (int k = 0; k < populacao[melhorCaminho].length - 2; k++) {
