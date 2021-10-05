@@ -38,6 +38,8 @@ class Main {
 
     private static final int tamanhoCaminhoMaximo = carga.split("0").length;
 
+    private static final Integer TOTAL_ITERACOES =  500000;
+
     public static void main(String[] args) {
         Random rand = new Random();
         populacao = new int[TAM_POPULACAO][tamanhoCaminhoMaximo + 1];
@@ -46,29 +48,28 @@ class Main {
 
         //cria a população inicial
         init();
-        int i = 0;
-        for (int g = 0; g < 500000; g++) {
+        for (int g = 0; g < TOTAL_ITERACOES; g++) {
             calculaAptidao();
             melhor = getBest();
             if (achouSolucao(melhor)) break;
             crossover();
             populacao = intermediaria;
             mutacao(rand);
-            i++;
             printCaminhos(g);
         }
-        System.out.println("Iterações: " + i);
     }
 
     private static void printCaminhos(int g) {
-        if (g % 100000 == 0) {
+        if (g % 50000 == 0) {
             printMatriz();
             printMelhorCaminho(0);
+            System.out.println("Iterações: " + g);
         }
 
-        if (g > 1000000 - 50) {
+        if (g > TOTAL_ITERACOES - 50) {
             printMatriz();
             printMelhorCaminho(0);
+            System.out.println("Iterações: " + g);
         }
     }
 
@@ -163,15 +164,15 @@ class Main {
                 contadorExterno++;
             }
 
-            descidaX -= 2000 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
-            descidaY -= 2000 * Math.pow(y, 2);
+            descidaX -= 1000 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
+            descidaY -= 1000 * Math.pow(y, 2);
 
             if (x <= INDICE_MAX_LARGURA_TABULEIRO && x >= 0 && y <= INDICE_MAX_ALTURA_TABULEIRO && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
                     resultado -= 15000;
                     contadorParede++;
                 } else if (matrizMovimento[y][x] == '0') {
-                    resultado += 3000;
+                    resultado += 4000;
                 } else if (matrizMovimento[y][x] == 'S') {
                     contemS = true;
                     break;
@@ -247,7 +248,7 @@ class Main {
 
     public static void mutacao() {
         Random rand = new Random();
-        int quant = rand.nextInt(15) + 1;
+        int quant = rand.nextInt(20) + 1;
         for (int i = 0; i < quant; i++) {
             int individuo = rand.nextInt(TAM_POPULACAO);
             int posicao = rand.nextInt(tamanhoCaminhoMaximo);
