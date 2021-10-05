@@ -164,8 +164,8 @@ class Main {
                 contadorExterno++;
             }
 
-            descidaX -= 1000 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
-            descidaY -= 1000 * Math.pow(y, 2);
+            descidaX -= 300 * INDICE_MAX_LARGURA_TABULEIRO - x;
+            descidaY -= 300 * y;
 
             if (x <= INDICE_MAX_LARGURA_TABULEIRO && x >= 0 && y <= INDICE_MAX_ALTURA_TABULEIRO && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
