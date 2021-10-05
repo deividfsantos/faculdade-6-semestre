@@ -12,7 +12,7 @@ public class GeneticAlgorithm {
     private static final int TAM_POPULACAO = 23;
     private static final int LARGURA_TABULEIRO = 12;
     private static final int ALTURA_TABULEIRO = 12;
-    private static final Integer TOTAL_ITERACOES = 500000;
+    private static final Integer TOTAL_ITERACOES = 400000;
 
     private final String carga;
     private final int tamanhoCaminhoMaximo;
@@ -136,20 +136,20 @@ public class GeneticAlgorithm {
                 contadorExterno++;
             }
             if (y < 0) {
-                resultado -= 5000 * -y;
+                resultado -= 7000 * -y;
                 contadorExterno++;
             }
             if (x > LARGURA_TABULEIRO - 1) {
-                resultado -= 5000 * x - LARGURA_TABULEIRO - 1;
+                resultado -= 7000 * x - LARGURA_TABULEIRO - 1;
                 contadorExterno++;
             }
             if (y > ALTURA_TABULEIRO - 1) {
-                resultado -= 5000 * y - ALTURA_TABULEIRO - 1;
+                resultado -= 7000 * y - ALTURA_TABULEIRO - 1;
                 contadorExterno++;
             }
 
-            descidaX -= 50 * LARGURA_TABULEIRO - 1 - x;
-            descidaY -= 50 * y;
+            descidaX -= 25 * LARGURA_TABULEIRO - 1 - x;
+            descidaY -= 25 * y;
 
             if (x <= LARGURA_TABULEIRO - 1 && x >= 0 && y <= ALTURA_TABULEIRO - 1 && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
