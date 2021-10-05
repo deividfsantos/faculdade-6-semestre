@@ -22,7 +22,7 @@ class Main {
             "1 1 1 0 1 0 0 0 0 1 1 1\n" +
             "1 1 1 0 0 0 0 1 0 0 0 S";
 
-    private static final int TAM_POPULACAO = 15;
+    private static final int TAM_POPULACAO = 23;
 
     private static int[][] populacao;
 
@@ -48,11 +48,8 @@ class Main {
         init();
         int i = 0;
         for (int g = 0; g < 1000000; g++) {
-//            System.out.println("Geração: " + g);
             calculaAptidao();
-//            printMatriz();
             melhor = getBest();
-//            System.out.println("Metodo Elitismo = " + melhor);
             if (achouSolucao(melhor)) break;
             crossover();
             populacao = intermediaria;
@@ -130,7 +127,7 @@ class Main {
         int contadorParede = 0;
         int contadorExterno = 0;
         for (int passo : passosIndividuo) {
-            resultado -= 300;
+            resultado -= 500;
             if (passo == 0) {
                 x--;
             } else if (passo == 1) {
@@ -150,24 +147,24 @@ class Main {
             pontosY.add(y);
 
             if (x < 0) {
-                resultado -= 1500 * -x;
+                resultado -= 5000 * -x;
                 contadorExterno++;
             }
             if (y < 0) {
-                resultado -= 1500 * -y;
+                resultado -= 5000 * -y;
                 contadorExterno++;
             }
             if (x > INDICE_MAX_LARGURA_TABULEIRO) {
-                resultado -= 1500 * x - INDICE_MAX_LARGURA_TABULEIRO;
+                resultado -= 5000 * x - INDICE_MAX_LARGURA_TABULEIRO;
                 contadorExterno++;
             }
             if (y > INDICE_MAX_ALTURA_TABULEIRO) {
-                resultado -= 1500 * y - INDICE_MAX_ALTURA_TABULEIRO;
+                resultado -= 5000 * y - INDICE_MAX_ALTURA_TABULEIRO;
                 contadorExterno++;
             }
 
-            descidaX -= 25 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
-            descidaY -= 25 * Math.pow(y, 2);
+            descidaX -= 30 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
+            descidaY -= 30 * Math.pow(y, 2);
 
             if (x <= INDICE_MAX_LARGURA_TABULEIRO && x >= 0 && y <= INDICE_MAX_ALTURA_TABULEIRO && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
@@ -190,7 +187,7 @@ class Main {
             resultado += 150000;
         }
 
-        if (contemS && contadorParede == 0 && contadorExterno < 30) {
+        if (contemS && contadorParede == 0 && contadorExterno < 20) {
             resultado = 1000000001;
         }
 
@@ -250,7 +247,7 @@ class Main {
 
     public static void mutacao() {
         Random rand = new Random();
-        int quant = rand.nextInt(5) + 1;
+        int quant = rand.nextInt(9) + 1;
         for (int i = 0; i < quant; i++) {
             int individuo = rand.nextInt(TAM_POPULACAO);
             int posicao = rand.nextInt(tamanhoCaminhoMaximo);
