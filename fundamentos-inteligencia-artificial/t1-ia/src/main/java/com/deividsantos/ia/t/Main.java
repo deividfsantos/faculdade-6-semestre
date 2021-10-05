@@ -66,14 +66,12 @@ class Main {
     private static void printCaminhos(int g) {
         if (g % 100000 == 0) {
             printMatriz();
-            printMelhorCaminho();
+            printMelhorCaminho(0);
         }
 
         if (g > 1000000 - 50) {
-            if (g == 1000000 - 1) {
-                printMatriz();
-            }
-            printMelhorCaminho();
+            printMatriz();
+            printMelhorCaminho(0);
         }
     }
 
@@ -132,6 +130,7 @@ class Main {
         int contadorParede = 0;
         int contadorExterno = 0;
         for (int passo : passosIndividuo) {
+            resultado -= 300;
             if (passo == 0) {
                 x--;
             } else if (passo == 1) {
@@ -151,19 +150,19 @@ class Main {
             pontosY.add(y);
 
             if (x < 0) {
-                resultado -= 200 * -x;
+                resultado -= 1500 * -x;
                 contadorExterno++;
             }
             if (y < 0) {
-                resultado -= 200 * -y;
+                resultado -= 1500 * -y;
                 contadorExterno++;
             }
             if (x > INDICE_MAX_LARGURA_TABULEIRO) {
-                resultado -= 200 * x - INDICE_MAX_LARGURA_TABULEIRO;
+                resultado -= 1500 * x - INDICE_MAX_LARGURA_TABULEIRO;
                 contadorExterno++;
             }
             if (y > INDICE_MAX_ALTURA_TABULEIRO) {
-                resultado -= 200 * y - INDICE_MAX_ALTURA_TABULEIRO;
+                resultado -= 1500 * y - INDICE_MAX_ALTURA_TABULEIRO;
                 contadorExterno++;
             }
 
@@ -172,10 +171,10 @@ class Main {
 
             if (x <= INDICE_MAX_LARGURA_TABULEIRO && x >= 0 && y <= INDICE_MAX_ALTURA_TABULEIRO && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
-                    resultado -= 8000;
+                    resultado -= 15000;
                     contadorParede++;
                 } else if (matrizMovimento[y][x] == '0') {
-                    resultado += 3000;
+                    resultado += 1000;
                 } else if (matrizMovimento[y][x] == 'S') {
                     contemS = true;
                     break;
@@ -184,15 +183,15 @@ class Main {
         }
 
         if (!contemS) {
-            resultado -= 100000;
+            resultado -= 150000;
             resultado += descidaX;
             resultado += descidaY;
         } else {
-            resultado += 100000;
+            resultado += 150000;
         }
 
         if (contemS && contadorParede == 0 && contadorExterno < 30) {
-            resultado = 1000000000;
+            resultado = 1000000001;
         }
 
         return resultado;
@@ -263,28 +262,23 @@ class Main {
     }
 
     public static boolean achouSolucao(int melhor) {
-        if (populacao[melhor][tamanhoCaminhoMaximo] == 1000000000) {
-            int soma = 0;
-            System.out.println("\nAchou a solução ótima. Ela corresponde ao cromossomo :" + melhor);
+        if (populacao[melhor][tamanhoCaminhoMaximo] == 1000000001) {
+            System.out.println("\nAchou a solução ótima. Ela corresponde ao cromossomo: " + melhor);
             System.out.println("Solução:");
-            for (int i = 0; i < tamanhoCaminhoMaximo; i++) {
-                if (populacao[melhor][i] == 0) {
-                    System.out.println(populacao[melhor][i]);
-                }
-            }
-            System.out.println(" - Total: " + soma);
+            printMatriz();
+            printMelhorCaminho(melhor);
             return true;
         }
         return false;
     }
 
-    private static void printMelhorCaminho() {
+    private static void printMelhorCaminho(int melhorCaminho) {
         int x = 0;
         int y = INDICE_MAX_ALTURA_TABULEIRO;
-        int[] pontosX = new int[populacao[0].length - 2];
-        int[] pontosY = new int[populacao[0].length - 2];
-        for (int k = 0; k < populacao[0].length - 2; k++) {
-            int passo = populacao[0][k];
+        int[] pontosX = new int[populacao[melhorCaminho].length - 2];
+        int[] pontosY = new int[populacao[melhorCaminho].length - 2];
+        for (int k = 0; k < populacao[melhorCaminho].length - 2; k++) {
+            int passo = populacao[melhorCaminho][k];
             if (passo == 0) {
                 x--;
             }
