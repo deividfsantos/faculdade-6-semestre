@@ -47,7 +47,7 @@ class Main {
         //cria a população inicial
         init();
         int i = 0;
-        for (int g = 0; g < 1000000; g++) {
+        for (int g = 0; g < 500000; g++) {
             calculaAptidao();
             melhor = getBest();
             if (achouSolucao(melhor)) break;
@@ -163,15 +163,15 @@ class Main {
                 contadorExterno++;
             }
 
-            descidaX -= 30 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
-            descidaY -= 30 * Math.pow(y, 2);
+            descidaX -= 2000 * Math.pow(INDICE_MAX_LARGURA_TABULEIRO - x, 2);
+            descidaY -= 2000 * Math.pow(y, 2);
 
             if (x <= INDICE_MAX_LARGURA_TABULEIRO && x >= 0 && y <= INDICE_MAX_ALTURA_TABULEIRO && y >= 0) {
                 if (matrizMovimento[y][x] == '1') {
                     resultado -= 15000;
                     contadorParede++;
                 } else if (matrizMovimento[y][x] == '0') {
-                    resultado += 1000;
+                    resultado += 3000;
                 } else if (matrizMovimento[y][x] == 'S') {
                     contemS = true;
                     break;
@@ -247,7 +247,7 @@ class Main {
 
     public static void mutacao() {
         Random rand = new Random();
-        int quant = rand.nextInt(9) + 1;
+        int quant = rand.nextInt(15) + 1;
         for (int i = 0; i < quant; i++) {
             int individuo = rand.nextInt(TAM_POPULACAO);
             int posicao = rand.nextInt(tamanhoCaminhoMaximo);
