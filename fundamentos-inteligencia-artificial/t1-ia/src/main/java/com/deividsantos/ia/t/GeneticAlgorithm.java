@@ -12,7 +12,7 @@ public class GeneticAlgorithm {
     private static final int TAM_POPULACAO = 23;
     private static final int LARGURA_TABULEIRO = 12;
     private static final int ALTURA_TABULEIRO = 12;
-    private static final Integer TOTAL_ITERACOES = 400000;
+    private static final Integer TOTAL_ITERACOES = 500000;
 
     private final String carga;
     private final int tamanhoCaminhoMaximo;
@@ -44,15 +44,15 @@ public class GeneticAlgorithm {
     }
 
     private void printCaminhos(int g) {
-        if (g % 50000 == 0) {
+        if (g % 5000 == 0) {
             printMatriz();
-            printMelhorCaminho(0);
+            printMelhorCaminho(getBest());
             System.out.println("Iterações: " + g);
         }
 
         if (g > TOTAL_ITERACOES - 50) {
             printMatriz();
-            printMelhorCaminho(0);
+            printMelhorCaminho(getBest());
             System.out.println("Iterações: " + g);
         }
     }
@@ -132,7 +132,7 @@ public class GeneticAlgorithm {
             pontosY.add(y);
 
             if (x < 0) {
-                resultado -= 5000 * -x;
+                resultado -= 7000 * -x;
                 contadorExterno++;
             }
             if (y < 0) {
