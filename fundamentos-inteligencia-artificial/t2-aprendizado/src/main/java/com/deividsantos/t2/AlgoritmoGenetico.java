@@ -78,7 +78,7 @@ public class AlgoritmoGenetico {
         int distancia = distancia(ultimoPassoX, ultimoPassoY, 9, 9);
         resultado += ((double) totalPassos / 2) - ((double) distancia / 30) + ((double) quantidadeMoedas * 2);
         if (ultimoPassoX == 9 && ultimoPassoY == 9) {
-            resultado = 99999;
+            resultado = 10000;
             printLabirinto(passosX, passosY);
         }
         return resultado;
@@ -140,8 +140,9 @@ public class AlgoritmoGenetico {
     }
 
     public boolean achouSolucao(int melhor) {
-        if (populacao[melhor][tamanhoCaminho] == 99999) {
-            System.out.println("\nAchou a solução ótima. Ela corresponde ao cromossomo: " + melhor);
+        if (populacao[melhor][tamanhoCaminho] == 10000) {
+            System.out.println("\nAchou a solução. Ela corresponde ao cromossomo: " + melhor);
+            printMatriz();
             return true;
         }
         return false;
@@ -159,7 +160,6 @@ public class AlgoritmoGenetico {
     public int distancia(int linhaOrigem, int colunaOrigem, int linhaDestino, int colunaDestino) {
         return Math.abs(linhaOrigem - linhaDestino) + Math.abs(colunaOrigem - colunaDestino);
     }
-
 
     private void printLabirinto(List<Integer> posicoesX, List<Integer> posicoesY) {
         System.out.println("RESULTADO");
