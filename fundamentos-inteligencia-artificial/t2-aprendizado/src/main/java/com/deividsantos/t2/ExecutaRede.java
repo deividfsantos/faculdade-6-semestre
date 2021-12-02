@@ -71,7 +71,7 @@ public class ExecutaRede {
     public static void main(String[] args) {
         int[][] labirinto = {{9, 0, 0, 1, 0, 8, 0, 0, 8, 1},       //9 : entrada/saida;   8: moeda;    1:parede;  0:caminho livre
                 {0, 1, 0, 8, 0, 1, 0, 1, 0, 8},
-                {0, 0, 8, 0, 1, 1, 8, 0, 1, 1},
+                {1, 0, 8, 0, 1, 1, 8, 0, 1, 1},
                 {8, 1, 1, 0, 8, 1, 1, 8, 0, 1},
                 {8, 0, 0, 0, 0, 1, 1, 0, 1, 1},
                 {1, 1, 1, 1, 0, 1, 1, 0, 1, 1},
@@ -84,13 +84,13 @@ public class ExecutaRede {
         AlgoritmoGenetico algoritmoGenetico = new AlgoritmoGenetico(totalPesos, labirinto);
         algoritmoGenetico.init();
 
-        for (int j = 0; j < 1000; j++) {
-            if (j % 100 == 0) {
+        for (int j = 0; j < 200000; j++) {
+            if (j % 5000 == 0) {
                 System.out.println("Geração: " + j);
             }
             for (int i = 0; i < algoritmoGenetico.getTamanhoPopulacao(); i++) {
                 ExecutaRede executaRede = new ExecutaRede(algoritmoGenetico.getPopulacao()[i], labirinto);
-                executarRede(executaRede, algoritmoGenetico, i, j % 100 == 0 && i == 0);
+                executarRede(executaRede, algoritmoGenetico, i, j % 10000 == 0 && i == 0);
             }
 
             algoritmoGenetico.execute();

@@ -11,7 +11,6 @@ public class AlgoritmoGenetico {
     private double[][] populacao;
     private final int[][] labirinto;
     private final int tamanhoPopulacao = 20;
-    private static final Integer TOTAL_ITERACOES = 2000;
     private final int tamanhoCaminho;
 
 
@@ -77,7 +76,7 @@ public class AlgoritmoGenetico {
             }
         }
         int distancia = distancia(ultimoPassoX, ultimoPassoY, 9, 9);
-        resultado += ((double) totalPassos / 2) - ((double) distancia / 20) + ((double) quantidadeMoedas);
+        resultado += ((double) totalPassos / 2) - ((double) distancia / 30) + ((double) quantidadeMoedas * 2);
         if (ultimoPassoX == 9 && ultimoPassoY == 9) {
             resultado = 99999;
             printLabirinto(passosX, passosY);
