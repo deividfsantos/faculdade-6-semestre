@@ -40,11 +40,14 @@ public class AlgoritmoGenetico {
                 int individuo = rand.nextInt(tamanhoPopulacao - 1) + 1;
                 int posicao = rand.nextInt(tamanhoCaminho);
                 int posicao2 = rand.nextInt(tamanhoCaminho);
+                int posicao3 = rand.nextInt(tamanhoCaminho);
 
                 double novoPeso = rand.nextDouble() * 2 - 1;
                 double novoPeso2 = rand.nextDouble() * 2 - 1;
+                double novoPeso3 = rand.nextDouble() * 2 - 1;
                 populacao[individuo][posicao] = novoPeso;
                 populacao[individuo][posicao2] = novoPeso2;
+                populacao[individuo][posicao3] = novoPeso3;
             }
         }
     }
@@ -69,12 +72,12 @@ public class AlgoritmoGenetico {
         for (int i = 0; i < passosX.size(); i++) {
             for (int j = i + 1; j < passosX.size(); j++) {
                 if (Objects.equals(passosX.get(i), passosX.get(j)) && Objects.equals(passosY.get(i), passosY.get(j))) {
-                    resultado = resultado - 1;
+                    resultado = resultado - 0.2;
                 }
             }
         }
         int distancia = distancia(ultimoPassoX, ultimoPassoY, 9, 9);
-        resultado += ((double) totalPassos / 3) - ((double) distancia / 10) + ((double) quantidadeMoedas / 2);
+        resultado += ((double) totalPassos / 2) - ((double) distancia / 20) + ((double) quantidadeMoedas);
         if (ultimoPassoX == 9 && ultimoPassoY == 9) {
             resultado = 99999;
             printLabirinto(passosX, passosY);
@@ -140,7 +143,6 @@ public class AlgoritmoGenetico {
     public boolean achouSolucao(int melhor) {
         if (populacao[melhor][tamanhoCaminho] == 99999) {
             System.out.println("\nAchou a solução ótima. Ela corresponde ao cromossomo: " + melhor);
-            System.out.println("Solução:");
             return true;
         }
         return false;
