@@ -67,7 +67,7 @@ public class AlgoritmoGenetico {
         for (int i = 0; i < passosX.size(); i++) {
             for (int j = i + 1; j < passosX.size(); j++) {
                 if (Objects.equals(passosX.get(i), passosX.get(j)) && Objects.equals(passosY.get(i), passosY.get(j))) {
-                    resultado--;
+                    resultado = resultado - 1;
                 }
             }
         }
@@ -76,9 +76,6 @@ public class AlgoritmoGenetico {
         }
         int distancia = distancia(ultimoPassoX, ultimoPassoY, 9, 9);
         resultado += ((double) totalPassos / 3) - ((double) distancia / 10) + ((double) quantidadeMoedas / 2);
-        if (resultado > 5) {
-            System.out.println();
-        }
         return resultado;
     }
 

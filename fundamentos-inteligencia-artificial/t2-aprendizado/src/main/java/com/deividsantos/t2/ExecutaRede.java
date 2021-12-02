@@ -37,8 +37,6 @@ public class ExecutaRede {
     }
 
     public double[] entorno(int linhaAgente, int colunaAgente) {
-//        System.out.println(linhaAgente);
-//        System.out.println(colunaAgente);
         double[] visao = new double[ENTRADAS];
         int ind = 0;
         //buscando percepção
@@ -86,10 +84,10 @@ public class ExecutaRede {
         AlgoritmoGenetico algoritmoGenetico = new AlgoritmoGenetico(totalPesos, labirinto);
         algoritmoGenetico.init();
 
-        for (int j = 0; j < 100000; j++) {
+        for (int j = 0; j < 200000; j++) {
             for (int i = 0; i < algoritmoGenetico.getTamanhoPopulacao(); i++) {
                 ExecutaRede executaRede = new ExecutaRede(algoritmoGenetico.getPopulacao()[i], labirinto);
-                executarRede(executaRede, algoritmoGenetico, i, j % 1000 == 0 && i == 0);
+                executarRede(executaRede, algoritmoGenetico, i, j % 10000 == 0 && i == 0);
             }
 
             algoritmoGenetico.execute();
