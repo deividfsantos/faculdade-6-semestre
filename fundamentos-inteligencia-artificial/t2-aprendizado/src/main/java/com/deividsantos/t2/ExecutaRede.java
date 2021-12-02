@@ -151,7 +151,6 @@ public class ExecutaRede {
     }
 
     private static void printLabirinto(ExecutaRede teste, List<Integer> posicoesX, List<Integer> posicoesY) {
-        System.out.println();
         int moedasColetadas = 0;
         StringBuilder builder = new StringBuilder();
         int[][] labirinto = teste.labirinto;
@@ -185,5 +184,6 @@ public class ExecutaRede {
         System.out.println(builder);
 
         System.out.println("Total de moedas coletadas: " + moedasColetadas * 50);
+        System.out.println();
     }
 }

@@ -25,7 +25,6 @@ public class AlgoritmoGenetico {
     public void execute() {
         int melhor = getBest();
         if (achouSolucao(melhor)) {
-            System.out.println("Achou");
             System.exit(0);
         }
         crossover();
@@ -40,9 +39,12 @@ public class AlgoritmoGenetico {
             for (int i = 0; i < quant; i++) {
                 int individuo = rand.nextInt(tamanhoPopulacao - 1) + 1;
                 int posicao = rand.nextInt(tamanhoCaminho);
+                int posicao2 = rand.nextInt(tamanhoCaminho);
 
                 double novoPeso = rand.nextDouble() * 2 - 1;
+                double novoPeso2 = rand.nextDouble() * 2 - 1;
                 populacao[individuo][posicao] = novoPeso;
+                populacao[individuo][posicao2] = novoPeso2;
             }
         }
     }
@@ -71,11 +73,12 @@ public class AlgoritmoGenetico {
                 }
             }
         }
-        if (ultimoPassoX == 9 && ultimoPassoY == 9) {
-            resultado = 99999;
-        }
         int distancia = distancia(ultimoPassoX, ultimoPassoY, 9, 9);
         resultado += ((double) totalPassos / 3) - ((double) distancia / 10) + ((double) quantidadeMoedas / 2);
+        if (ultimoPassoX == 9 && ultimoPassoY == 9) {
+            resultado = 99999;
+            printLabirinto(passosX, passosY);
+        }
         return resultado;
     }
 
@@ -154,5 +157,43 @@ public class AlgoritmoGenetico {
 
     public int distancia(int linhaOrigem, int colunaOrigem, int linhaDestino, int colunaDestino) {
         return Math.abs(linhaOrigem - linhaDestino) + Math.abs(colunaOrigem - colunaDestino);
+    }
+
+
+    private void printLabirinto(List<Integer> posicoesX, List<Integer> posicoesY) {
+        System.out.println("RESULTADO");
+        int moedasColetadas = 0;
+        StringBuilder builder = new StringBuilder();
+        int[][] labirinto = this.labirinto;
+        for (int i = 0; i < labirinto.length; i++) {
+            for (int j = 0; j < labirinto[0].length; j++) {
+                for (int k = 0; k < posicoesX.size(); k++) {
+                    if (posicoesX.get(k) == i && posicoesY.get(k) == j) {
+                        builder.append(ANSI_RED);
+                        if (labirinto[i][j] == 8) {
+                            moedasColetadas++;
+                        }
+                    }
+                }
+
+                if (labirinto[i][j] == 0) {
+                    builder.append("0 ");
+                }
+                if (labirinto[i][j] == 1) {
+                    builder.append("1 ");
+                }
+                if (labirinto[i][j] == 9) {
+                    builder.append("S ");
+                }
+                if (labirinto[i][j] == 8) {
+                    builder.append("M ");
+                }
+                builder.append(ANSI_RESET);
+            }
+            builder.append("\n");
+        }
+        System.out.println(builder);
+
+        System.out.println("Total de moedas coletadas: " + moedasColetadas * 50);
     }
 }
