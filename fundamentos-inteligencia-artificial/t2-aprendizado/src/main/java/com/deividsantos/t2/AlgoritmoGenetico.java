@@ -24,7 +24,10 @@ public class AlgoritmoGenetico {
 
     public void execute() {
         int melhor = getBest();
-        if (achouSolucao(melhor)) System.out.println("Achou");
+        if (achouSolucao(melhor)) {
+            System.out.println("Achou");
+            System.exit(0);
+        }
         crossover();
         populacao = intermediaria;
         mutacao();
@@ -72,9 +75,9 @@ public class AlgoritmoGenetico {
             resultado = 99999;
         }
         int distancia = distancia(ultimoPassoX, ultimoPassoY, 9, 9);
-        resultado += totalPassos - ((double) distancia / 5) + quantidadeMoedas;
-        if(resultado > 5){
-//            System.out.println("EHOSGURI");
+        resultado += ((double) totalPassos / 3) - ((double) distancia / 10) + ((double) quantidadeMoedas / 2);
+        if (resultado > 5) {
+            System.out.println();
         }
         return resultado;
     }
@@ -129,13 +132,13 @@ public class AlgoritmoGenetico {
             for (int k = 0; k < tamanhoCaminho; k++) {
                 double peso1 = populacao[ind1][k];
                 double peso2 = populacao[ind2][k];
-                intermediaria[ind1][k] = (peso1 + peso2) / 2;
+                intermediaria[ind1 == 0 ? ind2 : ind1][k] = (peso1 + peso2) / 2;
             }
         }
     }
 
     public boolean achouSolucao(int melhor) {
-        if (populacao[melhor][tamanhoCaminho] == 1000000001) {
+        if (populacao[melhor][tamanhoCaminho] == 99999) {
             System.out.println("\nAchou a solução ótima. Ela corresponde ao cromossomo: " + melhor);
             System.out.println("Solução:");
             return true;

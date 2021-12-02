@@ -10,7 +10,7 @@ import java.util.List;
  * @version 12/11/2020
  */
 
-public class TestaRede {
+public class ExecutaRede {
     private final int[][] labirinto;
     private Rede rn;
     private final int linhaSaida;
@@ -24,7 +24,7 @@ public class TestaRede {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[31m";
 
-    public TestaRede(double[] cromossomo, int[][] labirinto) {
+    public ExecutaRede(double[] cromossomo, int[][] labirinto) {
         //Labirinto de teste
         this.labirinto = labirinto;
         linhaSaida = colunaSaida = 9;                          //Coordenadas da célula de saída
@@ -88,15 +88,15 @@ public class TestaRede {
 
         for (int j = 0; j < 100000; j++) {
             for (int i = 0; i < algoritmoGenetico.getTamanhoPopulacao(); i++) {
-                TestaRede testaRede = new TestaRede(algoritmoGenetico.getPopulacao()[i], labirinto);
-                executarRede(testaRede, algoritmoGenetico, i, j % 1000 == 0 && i == 0);
+                ExecutaRede executaRede = new ExecutaRede(algoritmoGenetico.getPopulacao()[i], labirinto);
+                executarRede(executaRede, algoritmoGenetico, i, j % 1000 == 0 && i == 0);
             }
 
             algoritmoGenetico.execute();
         }
     }
 
-    private static void executarRede(TestaRede teste, AlgoritmoGenetico algoritmoGenetico, int indiceIndividuo, boolean shouldPrint) {
+    private static void executarRede(ExecutaRede executaRede, AlgoritmoGenetico algoritmoGenetico, int indiceIndividuo, boolean shouldPrint) {
         List<Integer> posicoesX = new ArrayList<>();
         List<Integer> posicoesY = new ArrayList<>();
         posicoesX.add(0);
@@ -105,9 +105,9 @@ public class TestaRede {
 
         for (int k = 0; k < 1000; k++) {
 
-            double[] percepcao = teste.entorno(posX, posY);
+            double[] percepcao = executaRede.entorno(posX, posY);
 
-            double[] saida = teste.rn.propagacao(percepcao);
+            double[] saida = executaRede.rn.propagacao(percepcao);
 
             int indMaior = 0;
             for (int i = 0; i < NEURONIOS_SAIDA; i++) {
@@ -130,7 +130,7 @@ public class TestaRede {
 
             int quantidadeMoedas = 0;
             if (posX >= 0 && posY >= 0 && posX <= 9 && posY <= 9) {
-                if (teste.labirinto[posX][posY] == 9) {
+                if (executaRede.labirinto[posX][posY] == 9) {
                     quantidadeMoedas++;
                 }
             }
@@ -140,7 +140,7 @@ public class TestaRede {
 
             if (posX < 0 || posX > 9 || posY < 0 || posY > 9
                     || (posX == 9 && posY == 9)
-                    || teste.labirinto[posX][posY] == 1) {
+                    || executaRede.labirinto[posX][posY] == 1) {
                 algoritmoGenetico.calculaAptidao(indiceIndividuo, posicoesX, posicoesY, quantidadeMoedas);
                 break;
             }
@@ -148,12 +148,13 @@ public class TestaRede {
 
         if (shouldPrint) {
             algoritmoGenetico.printMatriz();
-            printLabirinto(teste, posicoesX, posicoesY);
+            printLabirinto(executaRede, posicoesX, posicoesY);
         }
     }
 
-    private static void printLabirinto(TestaRede teste, List<Integer> posicoesX, List<Integer> posicoesY) {
+    private static void printLabirinto(ExecutaRede teste, List<Integer> posicoesX, List<Integer> posicoesY) {
         System.out.println();
+        int moedasColetadas = 0;
         StringBuilder builder = new StringBuilder();
         int[][] labirinto = teste.labirinto;
         for (int i = 0; i < labirinto.length; i++) {
@@ -161,6 +162,9 @@ public class TestaRede {
                 for (int k = 0; k < posicoesX.size(); k++) {
                     if (posicoesX.get(k) == i && posicoesY.get(k) == j) {
                         builder.append(ANSI_RED);
+                        if (labirinto[i][j] == 8) {
+                            moedasColetadas++;
+                        }
                     }
                 }
 
@@ -181,5 +185,7 @@ public class TestaRede {
             builder.append("\n");
         }
         System.out.println(builder);
+
+        System.out.println("Total de moedas coletadas: " + moedasColetadas * 50);
     }
 }

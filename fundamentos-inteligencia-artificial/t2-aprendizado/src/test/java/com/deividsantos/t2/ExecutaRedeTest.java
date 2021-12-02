@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TestaRedeTest {
-    TestaRede testaRede = new TestaRede(new double[44], new int[][]{{9, 0, 0, 1, 0, 8, 0, 0, 8, 1},       //9 : entrada/saida;   8: moeda;    1:parede;  0:caminho livre
+class ExecutaRedeTest {
+    ExecutaRede executaRede = new ExecutaRede(new double[1000], new int[][]{{9, 0, 0, 1, 0, 8, 0, 0, 8, 1},       //9 : entrada/saida;   8: moeda;    1:parede;  0:caminho livre
             {0, 1, 0, 8, 0, 1, 0, 1, 0, 8},
             {0, 0, 8, 0, 1, 1, 8, 0, 1, 1},
             {8, 1, 1, 0, 8, 1, 1, 8, 0, 1},
@@ -20,7 +20,7 @@ class TestaRedeTest {
 
     @Test
     void entorno() {
-        double[] entorno1 = testaRede.entorno(0, 0);
+        double[] entorno1 = executaRede.entorno(0, 0);
         assertEquals(-1, entorno1[0]);
         assertEquals(-1, entorno1[1]);
         assertEquals(0, entorno1[2]);
@@ -30,7 +30,7 @@ class TestaRedeTest {
 
     @Test
     void entorno2() {
-        double[] entorno2 = testaRede.entorno(5, 3);
+        double[] entorno2 = executaRede.entorno(5, 3);
         assertEquals(0, entorno2[0]);
         assertEquals(1, entorno2[1]);
         assertEquals(1, entorno2[2]);
@@ -40,7 +40,7 @@ class TestaRedeTest {
 
     @Test
     void entorno3() {
-        double[] entorno3 = testaRede.entorno(-1, -1);
+        double[] entorno3 = executaRede.entorno(-1, -1);
         assertEquals(-1, entorno3[0]);
         assertEquals(-1, entorno3[1]);
         assertEquals(-1, entorno3[2]);
@@ -50,7 +50,7 @@ class TestaRedeTest {
 
     @Test
     void entorno4() {
-        double[] entorno4 = testaRede.entorno(0, -1);
+        double[] entorno4 = executaRede.entorno(0, -1);
         assertEquals(-1, entorno4[0]);
         assertEquals(-1, entorno4[1]);
         assertEquals(-1, entorno4[2]);
@@ -60,7 +60,7 @@ class TestaRedeTest {
 
     @Test
     void entorno5() {
-        double[] entorno5 = testaRede.entorno(-1, 0);
+        double[] entorno5 = executaRede.entorno(-1, 0);
         assertEquals(-1, entorno5[0]);
         assertEquals(-1, entorno5[1]);
         assertEquals(9, entorno5[2]);
@@ -70,7 +70,7 @@ class TestaRedeTest {
 
     @Test
     void entorno6() {
-        double[] entorno6 = testaRede.entorno(10, 10);
+        double[] entorno6 = executaRede.entorno(10, 10);
         assertEquals(-1, entorno6[0]);
         assertEquals(-1, entorno6[1]);
         assertEquals(-1, entorno6[2]);
@@ -80,7 +80,7 @@ class TestaRedeTest {
 
     @Test
     void entorno7() {
-        double[] entorno7 = testaRede.entorno(9, 9);
+        double[] entorno7 = executaRede.entorno(9, 9);
         assertEquals(1, entorno7[0]);
         assertEquals(0, entorno7[1]);
         assertEquals(-1, entorno7[2]);
@@ -90,7 +90,7 @@ class TestaRedeTest {
 
     @Test
     void entorno8() {
-        double[] entorno8 = testaRede.entorno(10, 9);
+        double[] entorno8 = executaRede.entorno(10, 9);
         assertEquals(9, entorno8[0]);
         assertEquals(-1, entorno8[1]);
         assertEquals(-1, entorno8[2]);
@@ -100,7 +100,7 @@ class TestaRedeTest {
 
     @Test
     void entorno9() {
-        double[] entorno9 = testaRede.entorno(9, 10);
+        double[] entorno9 = executaRede.entorno(9, 10);
         assertEquals(-1, entorno9[0]);
         assertEquals(9, entorno9[1]);
         assertEquals(-1, entorno9[2]);
@@ -110,7 +110,7 @@ class TestaRedeTest {
 
     @Test
     void entorno10() {
-        double[] entorno10 = testaRede.entorno(-5, -3);
+        double[] entorno10 = executaRede.entorno(-5, -3);
         assertEquals(-1, entorno10[0]);
         assertEquals(-1, entorno10[1]);
         assertEquals(-1, entorno10[2]);
@@ -120,7 +120,7 @@ class TestaRedeTest {
 
     @Test
     void entorno11() {
-        double[] entorno11 = testaRede.entorno(15, 12);
+        double[] entorno11 = executaRede.entorno(15, 12);
         assertEquals(-1, entorno11[0]);
         assertEquals(-1, entorno11[1]);
         assertEquals(-1, entorno11[2]);
@@ -130,7 +130,7 @@ class TestaRedeTest {
 
     @Test
     void entorno12() {
-        double[] entorno11 = testaRede.entorno(1, -1);
+        double[] entorno11 = executaRede.entorno(1, -1);
         assertEquals(-1, entorno11[0]);
         assertEquals(-1, entorno11[1]);
         assertEquals(-1, entorno11[2]);
@@ -140,7 +140,7 @@ class TestaRedeTest {
 
     @Test
     void entorno13() {
-        double[] entorno11 = testaRede.entorno(1, -2);
+        double[] entorno11 = executaRede.entorno(1, -2);
         assertEquals(-1, entorno11[0]);
         assertEquals(-1, entorno11[1]);
         assertEquals(-1, entorno11[2]);
@@ -150,7 +150,7 @@ class TestaRedeTest {
 
     @Test
     void entorno14() {
-        double[] entorno11 = testaRede.entorno(10, 0);
+        double[] entorno11 = executaRede.entorno(10, 0);
         assertEquals(1, entorno11[0]);
         assertEquals(-1, entorno11[1]);
         assertEquals(-1, entorno11[2]);
