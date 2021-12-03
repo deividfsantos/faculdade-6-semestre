@@ -85,12 +85,12 @@ public class ExecutaRede {
         algoritmoGenetico.init();
 
         for (int j = 0; j < 200000; j++) {
-            if (j % 2500 == 0) {
+            if (j % 50 == 0) {
                 System.out.println("Geração: " + j);
             }
             for (int i = 0; i < algoritmoGenetico.getTamanhoPopulacao(); i++) {
                 ExecutaRede executaRede = new ExecutaRede(algoritmoGenetico.getPopulacao()[i], labirinto);
-                executarRede(executaRede, algoritmoGenetico, i, j % 8000 == 0 && i == 0);
+                executarRede(executaRede, algoritmoGenetico, i, j % 400 == 0 && i == 0);
             }
 
             algoritmoGenetico.execute();
