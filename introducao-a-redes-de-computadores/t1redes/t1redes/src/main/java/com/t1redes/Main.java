@@ -1,15 +1,16 @@
 package com.t1redes;
 
+import java.util.List;
+
 public class Main {
 
     public static void main(String[] args) {
         String algo = "saw";
-        String seqbits = "1";
-        String num_frames = "10";
-        String lost_pkts = "3,10,15";
+        String seqbits = "2";
+        String num_frames = "6";
+        String lost_pkts = "3";
 
-        SAW saw = new SAW();
-        saw.saw(algo, seqbits, num_frames, lost_pkts);
-
+        GBN gbn = new GBN(algo, seqbits, num_frames, lost_pkts);
+        gbn.gbn().forEach(System.out::println);
     }
 }

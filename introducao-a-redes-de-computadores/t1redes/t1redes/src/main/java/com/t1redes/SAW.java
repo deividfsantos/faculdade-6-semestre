@@ -19,7 +19,7 @@ public class SAW {
         var totalBits = (int) Math.pow(2, Double.parseDouble(seqbits)) - 1;
         var lostPkts = Arrays.stream(lost_pkts.split(","))
                 .map(Integer::valueOf)
-                .collect(Collectors.toList());
+                .toList();
 
         var numFrames = Integer.parseInt(num_frames);
         while (sequence < numFrames || currentEventType == EventType.ACK) {
@@ -29,8 +29,7 @@ public class SAW {
     }
 
     private void runFrames(int totalBits, List<Integer> lostPkts) {
-        if (!lostPkts.isEmpty() && lostPkts.get(0) == currentLine) {
-            lostPkts.remove(0);
+        if (lostPkts.contains(currentLine)) {
             if (currentEventType == EventType.FRAME) {
                 result.add("A -x B : (" + ++sequence + ") Frame " + currentFrame);
                 result.add("Note over A : TIMEOUT (" + sequence + ")");
