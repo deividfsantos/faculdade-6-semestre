@@ -1,6 +1,5 @@
 package com.t1redes;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -11,11 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SAWTest {
 
     private SAW saw;
-
-    @BeforeEach
-    public void setup() {
-        saw = new SAW();
-    }
 
     @Test
     void saw1() {
@@ -45,11 +39,11 @@ class SAWTest {
                 "B -->> A : Ack 1\n" +
                 "A ->> B : (10) Frame 1\n" +
                 "B -->> A : Ack 0";
-        String algo = "saw";
         String seqbits = "1";
         String num_frames = "10";
         String lost_pkts = "3,10,15";
-        List<String> result = saw.saw(algo, seqbits, num_frames, lost_pkts);
+        saw = new SAW(seqbits, num_frames, lost_pkts);
+        List<String> result = saw.saw();
         List<String> expectedList = Arrays.asList(expected.split("\n"));
         assertEquals(expectedList, result);
     }
@@ -64,11 +58,11 @@ class SAWTest {
                 "B -->> A : Ack 1\n" +
                 "A ->> B : (4) Frame 1\n" +
                 "B -->> A : Ack 0";
-        String algo = "saw";
         String seqbits = "1";
         String num_frames = "4";
         String lost_pkts = "0";
-        List<String> result = saw.saw(algo, seqbits, num_frames, lost_pkts);
+        saw = new SAW(seqbits, num_frames, lost_pkts);
+        List<String> result = saw.saw();
         List<String> expectedList = Arrays.asList(expected.split("\n"));
         assertEquals(expectedList, result);
     }
@@ -85,11 +79,11 @@ class SAWTest {
                 "B -->> A : Ack 1\n" +
                 "A ->> B : (4) Frame 1\n" +
                 "B -->> A : Ack 0";
-        String algo = "saw";
         String seqbits = "1";
         String num_frames = "4";
         String lost_pkts = "1";
-        List<String> result = saw.saw(algo, seqbits, num_frames, lost_pkts);
+        saw = new SAW(seqbits, num_frames, lost_pkts);
+        List<String> result = saw.saw();
         List<String> expectedList = Arrays.asList(expected.split("\n"));
         assertEquals(expectedList, result);
     }
@@ -109,11 +103,11 @@ class SAWTest {
                 "B -->> A : Ack 1\n" +
                 "A ->> B : (4) Frame 1\n" +
                 "B -->> A : Ack 0";
-        String algo = "saw";
         String seqbits = "1";
         String num_frames = "4";
         String lost_pkts = "1,3";
-        List<String> result = saw.saw(algo, seqbits, num_frames, lost_pkts);
+        saw = new SAW(seqbits, num_frames, lost_pkts);
+        List<String> result = saw.saw();
         List<String> expectedList = Arrays.asList(expected.split("\n"));
         assertEquals(expectedList, result);
     }
@@ -132,11 +126,11 @@ class SAWTest {
                 "B -->> A : Ack 1\n" +
                 "A ->> B : (4) Frame 1\n" +
                 "B -->> A : Ack 0";
-        String algo = "saw";
         String seqbits = "1";
         String num_frames = "4";
         String lost_pkts = "3,6";
-        List<String> result = saw.saw(algo, seqbits, num_frames, lost_pkts);
+        saw = new SAW(seqbits, num_frames, lost_pkts);
+        List<String> result = saw.saw();
         List<String> expectedList = Arrays.asList(expected.split("\n"));
         assertEquals(expectedList, result);
     }

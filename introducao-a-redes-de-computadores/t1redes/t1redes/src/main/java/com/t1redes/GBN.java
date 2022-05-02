@@ -20,7 +20,7 @@ public class GBN {
     private final Integer windowSize;
     private final Integer numFrames;
 
-    public GBN(String algo, String seqbits, String num_frames, String lost_pkts) {
+    public GBN(String seqbits, String num_frames, String lost_pkts) {
         this.windowSize = (int) Math.pow(2, Double.parseDouble(seqbits)) - 1;
         this.lostPkgs = Arrays.stream(lost_pkts.split(",")).map(Integer::valueOf).toList();
         this.numFrames = Integer.parseInt(num_frames);
