@@ -13,40 +13,40 @@ public class SAW {
 
     List<String> result = new ArrayList<>();
 
-    private Integer totalBits;
-    private List<Integer> lostPkgs;
-    private Integer numFrames;
+    private final Integer totalBits;
+    private final List<Integer> lostPkgs;
+    private final Integer numFrames;
 
     public SAW(String seqbits, String num_frames, String lost_pkts) {
-        this.totalBits = (int) Math.pow(2, Double.parseDouble(seqbits)) - 1;
+        this.totalBits = (int) Math.pow(2, Double.parseDouble(seqbits)) - 1; // define a sequencia de bits
         this.lostPkgs = Arrays.stream(lost_pkts.split(","))
                 .map(Integer::valueOf)
-                .toList();
+                .toList(); // converte a string dos lost_pkts e para uma lista de ints
 
         this.numFrames = Integer.parseInt(num_frames);
     }
 
     public List<String> saw() {
-        while (sequence < numFrames || currentEventType == EventType.ACK) {
-            runFrames(totalBits, lostPkgs);
+        while (sequence < numFrames || currentEventType == EventType.ACK) { // enquanto o numero de frames for maior q a sequencia ou espera um evento ack
+            runFrames();// executa os frames
         }
         return result;
     }
 
-    private void runFrames(int totalBits, List<Integer> lostPkts) {
-        if (lostPkts.contains(currentLine)) {
-            if (currentEventType == EventType.FRAME) {
+    private void runFrames() {
+        if (lostPkgs.contains(currentLine)) {// se for uma falha
+            if (currentEventType == EventType.FRAME) {// e se espera enviar um frame(emissor)
                 result.add("A -x B : (" + ++sequence + ") Frame " + currentFrame);
                 result.add("Note over A : TIMEOUT (" + sequence + ")");
-            } else {
+            } else {// ou espera enviar um ack(receptor)
                 result.add("B --x A : Ack " + getNextFrame(totalBits));
                 result.add("Note over A : TIMEOUT (" + sequence + ")");
             }
             currentEventType = EventType.RET;
-        } else {
-            if (currentEventType == EventType.FRAME) {
+        } else {// mas se der certo
+            if (currentEventType == EventType.FRAME) {// se ele espera enviar um frame(emissor)
                 result.add("A ->> B : (" + ++sequence + ") Frame " + currentFrame);
-            } else if (currentEventType == EventType.ACK) {
+            } else if (currentEventType == EventType.ACK) {// se ele espera enviar um ack(receptor)
                 updateFrame(totalBits);
                 result.add("B -->> A : Ack " + currentFrame);
             } else {
@@ -54,7 +54,7 @@ public class SAW {
             }
             changeEventType();
         }
-        currentLine++;
+        currentLine++;// atualiza a sequencia
     }
 
     private void changeEventType() {
