@@ -115,7 +115,10 @@ class GBNTest {
         String lost_pkts = "1,7";
         gbn = new GBN(algo, seqbits, num_frames, lost_pkts);
         List<String> result = gbn.gbn();
+        result.forEach(System.out::println);
+        System.out.println();
         List<String> expectedList = Arrays.asList(expected.split("\n"));
+        expectedList.forEach(System.out::println);
         assertEquals(expectedList, result);
     }
 

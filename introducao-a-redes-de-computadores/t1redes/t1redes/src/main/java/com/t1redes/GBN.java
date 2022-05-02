@@ -35,7 +35,10 @@ public class GBN {
         var currentWindowElement = 0;
         while (currentFrame < numFrames) {
             while (currentWindowElement < windowSize && currentFrame < numFrames) {
-                if (lostPkgs.contains(currentPkg)) {
+                if ((elementsToAck.contains(sequence) || failedElements.contains(sequence)) && lostPkgs.contains(currentPkg)) {
+                    failedElements.add(sequence);
+                    result.add("A -x B : (" + (sequence + 1) + ") Frame " + numSequence.get(currentFrame) + " (RET)");
+                } else if (lostPkgs.contains(currentPkg)) {
                     failedElements.add(sequence);
                     result.add("A -x B : (" + (sequence + 1) + ") Frame " + numSequence.get(currentFrame));
                 } else if (elementsToAck.contains(sequence) || failedElements.contains(sequence)) {
@@ -54,14 +57,13 @@ public class GBN {
                 Integer sentFrame = elementsToAck.get(0);
                 if (lostPkgs.contains(currentPkg)) {
                     result.add("B --x A : Ack " + numSequence.get(sentFrame + 1));
-                    currentWindowElement--;
-                    elementsToAck.remove(0);
-                    ackWaitingFrame++;
                     currentPkg++;
-                } else if (numSequence.get(ackWaitingFrame).equals(numSequence.get(sentFrame))) {
+                    Integer failed = elementsToAck.remove(0);
+                    failedElements.add(failed);
+                } else if (ackWaitingFrame.equals(sentFrame)) {
                     result.add("B -->> A : Ack " + numSequence.get(sentFrame + 1));
-                    currentWindowElement--;
                     elementsToAck.remove(0);
+                    currentWindowElement--;
                     ackWaitingFrame++;
                     currentPkg++;
                 }
