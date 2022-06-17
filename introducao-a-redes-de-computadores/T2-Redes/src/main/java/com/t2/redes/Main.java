@@ -18,6 +18,7 @@ public class Main {
                 r1,192.168.0.0/24,0.0.0.0,0
                 r2,192.168.0.0/24,0.0.0.0,0
                 r1,192.168.1.0/24,0.0.0.0,1""";
+
         var lines = Arrays.asList(file.split("\n"));
 
         var nodes = new ArrayList<Node>();
@@ -25,36 +26,62 @@ public class Main {
         var routerTables = new ArrayList<RouterTable>();
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
-
+        String command = "ping";
+        // --------------------------------------------------------
         var source = "n1";
         var dest = "n2";
-
         var output = new ArrayList<>();
         var sourceNode = getNodeByName(nodes, source);
         var destNode = getNodeByName(nodes, dest);
         String ipToFind = null;
-        if (isAtSameNetwork(sourceNode.ipAddress(), destNode.ipAddress())) {
-            ipToFind = destNode.ipAddress();
-            output.add(noteOverPrint(source, sourceNode.ipAddress(), ipToFind));
-            sourceNode.arpTable().add(new NetInterface(destNode.ipAddress(), destNode.macAddress()));
-            output.add(arpReply(sourceNode.name(), destNode.name(), destNode.ipAddress(), destNode.macAddress()));
-        } else {
-            ipToFind = sourceNode.defaultGateway();
-            output.add(noteOverPrint(source, sourceNode.ipAddress(), ipToFind));
-            for (Router router : routers) {
-                for (NetInterface netInterface : router.netInterfaces()) {
-                    if (cleanIp(netInterface.ip()).equalsIgnoreCase(ipToFind)) {
-                        sourceNode.arpTable().add(netInterface);
-                        output.add(arpReply(sourceNode.name(), router.name(), netInterface.ip(), netInterface.macAddress()));
+        int ttl = 0;
+        switch(command) {
+            case "ping" : {
+                ttl = 8;
+                if (isAtSameNetwork(sourceNode.ipAddress(), destNode.ipAddress())) {
+                    ipToFind = destNode.ipAddress();
+                    //ARP
+                    output.add(noteOverPrint(source, sourceNode.ipAddress(), ipToFind));
+                    sourceNode.arpTable().add(new NetInterface(destNode.ipAddress(), destNode.macAddress()));
+                    output.add(arpReply(sourceNode.name(), destNode.name(), destNode.ipAddress(), destNode.macAddress()));
+                    //ICMP
+                    output.add(icmpRequest(source, dest, sourceNode.ipAddress(), destNode.ipAddress(), ttl));
+
+                } else {
+                    ipToFind = sourceNode.defaultGateway();
+                    output.add(noteOverPrint(source, sourceNode.ipAddress(), ipToFind));
+                    for (Router router : routers) {
+                        for (NetInterface netInterface : router.netInterfaces()) {
+                            if (cleanIp(netInterface.ip()).equalsIgnoreCase(ipToFind)) {
+                                sourceNode.arpTable().add(netInterface);
+                                output.add(arpReply(sourceNode.name(), router.name(), netInterface.ip(), netInterface.macAddress()));
+                            }
+                        }
                     }
                 }
-            }
+            }break;
+            case "traceroute": {} break;
+            default: break;
+        }
+        for (var item: output) {
+            System.out.println(item);
         }
     }
 
+    private static String icmpRequest(String source, String dest, String srcIP, String destIP, int ttl) {
+        return String.format("%s ->> %s : ICMP Echo Request<br/>src=%s dst=%s ttl=%d", source, dest, srcIP, destIP, ttl);
+    }
+
+    private static String icmpReply(String source, String dest, String srcIP, String destIP, int ttl) {
+        return String.format("%s ->> %s : ICMP Echo Reply<br/>src=%s dst=%s ttl=%d", source, dest, srcIP, destIP, ttl);
+    }
+
+    private static String icmpTimeExceeded(String source, String dest, String srcIP, String destIP, int ttl) {
+        return String.format("%s ->> %s : ICMP Time Exceeded<br/>src=%s dst=%s ttl=%d", source, dest, srcIP, destIP, ttl);
+    }
+
     private static String arpReply(String sourceName, String destName, String destIp, String destMac) {
-        return String.format("%s ->> %s : ARP Reply<br/>%s is at %s",
-                destName, sourceName, cleanIp(destIp), destMac);
+        return String.format("%s ->> %s : ARP Reply<br/>%s is at %s", destName, sourceName, cleanIp(destIp), destMac);
     }
 
     private static String noteOverPrint(String sourceName, String sourceIp, String destIp) {
