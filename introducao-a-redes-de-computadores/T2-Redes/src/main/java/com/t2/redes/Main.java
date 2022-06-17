@@ -29,7 +29,7 @@ public class Main {
         String command = "ping";
         // --------------------------------------------------------
         var source = "n1";
-        var dest = "n2";
+        var dest = "n3";
         var output = new ArrayList<>();
         var sourceNode = getNodeByName(nodes, source);
         var destNode = getNodeByName(nodes, dest);
@@ -40,21 +40,26 @@ public class Main {
                 ttl = 8;
                 if (isAtSameNetwork(sourceNode.ipAddress(), destNode.ipAddress())) {
                     ipToFind = destNode.ipAddress();
+                    if(!sourceNode.arpTable().contains(new NetInterface(destNode.ipAddress(),destNode.macAddress()))){
                     //ARP
                     output.add(noteOverPrint(source, sourceNode.ipAddress(), ipToFind));
                     sourceNode.arpTable().add(new NetInterface(destNode.ipAddress(), destNode.macAddress()));
                     output.add(arpReply(sourceNode.name(), destNode.name(), destNode.ipAddress(), destNode.macAddress()));
+                    sourceNode.arpTable().add(new NetInterface(destNode.ipAddress(), destNode.macAddress()));
+                    }
                     //ICMP
                     output.add(icmpRequest(source, dest, sourceNode.ipAddress(), destNode.ipAddress(), ttl));
-
+                    output.add(icmpReply(dest, source, destNode.ipAddress(), sourceNode.ipAddress(), ttl));
                 } else {
-                    ipToFind = sourceNode.defaultGateway();
-                    output.add(noteOverPrint(source, sourceNode.ipAddress(), ipToFind));
-                    for (Router router : routers) {
-                        for (NetInterface netInterface : router.netInterfaces()) {
-                            if (cleanIp(netInterface.ip()).equalsIgnoreCase(ipToFind)) {
-                                sourceNode.arpTable().add(netInterface);
-                                output.add(arpReply(sourceNode.name(), router.name(), netInterface.ip(), netInterface.macAddress()));
+                    if(!sourceNode.arpTable().contains(new NetInterface(destNode.ipAddress(),destNode.macAddress()))) {
+                        ipToFind = sourceNode.defaultGateway();
+                        output.add(noteOverPrint(source, sourceNode.ipAddress(), ipToFind));
+                        for (Router router : routers) {
+                            for (NetInterface netInterface : router.netInterfaces()) {
+                                if (cleanIp(netInterface.ip()).equalsIgnoreCase(ipToFind)) {
+                                    sourceNode.arpTable().add(netInterface);
+                                    output.add(arpReply(sourceNode.name(), router.name(), netInterface.ip(), netInterface.macAddress()));
+                                }
                             }
                         }
                     }
