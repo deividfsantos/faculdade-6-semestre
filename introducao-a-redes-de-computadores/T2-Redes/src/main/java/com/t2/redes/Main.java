@@ -55,9 +55,24 @@ public class Main {
                     if (hardwareType == HardwareType.ROUTER) {
                         RouterTableLine routerTableLineDest = getRouterDest(actualRouter, destNode.ipAddress());
                         if (routerTableLineDest.netDest().contains("0.0.0.0")) {
+                            //Router to Router
                             output.add(noteOverPrint(actualRouter.name(), routerTableLineDest.nextHop(), actualRouter.netInterfaces().get(routerTableLineDest.port()).ip()));
+
+                            for (Router router : routers) {
+                                for (NetInterface netInterface : router.netInterfaces()) {
+                                    if (netInterface.ip().contains(ipToFind)) {
+                                        output.add(arpReply(router.name(), actualRouter.name(), netInterface.ip(), netInterface.macAddress()));
+                                        sourceNode.arpTable().add(netInterface);
+                                        actualRouter = router;
+                                    }
+                                }
+                            }
                         } else {
+                            //Node to Router
                             output.add(noteOverPrint(actualRouter.name(), destNode.ipAddress(), actualRouter.netInterfaces().get(routerTableLineDest.port()).ip()));
+                            output.add(arpReply(destNode.name(), actualRouter.name(), destNode.ipAddress(), destNode.macAddress()));
+                            actualRouter.arpTable().add(new NetInterface(destNode.ipAddress(), destNode.macAddress()));
+                            hardwareType = HardwareType.NODE;
                         }
                     } else {
                         ipToFind = sourceNode.defaultGateway();
