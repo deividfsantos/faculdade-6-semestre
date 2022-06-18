@@ -30,14 +30,14 @@ public class Structure {
         for (int j = i; j < lines.size(); j++) {
             var split = lines.get(j).split(",");
             var name = split[0];
-            var netSource = split[1];
-            var netDest = split[2];
-            var nextHop = split[3];
-            var routerLine = new RouterLine(netSource, netDest, nextHop);
+            var netDest = split[1];
+            var nextHop = split[2];
+            var port = Integer.parseInt(split[3]);
+            var routerLine = new RouterTableLine(netDest, nextHop, port);
             var contains = false;
             for (RouterTable routerTable : routerTables) {
                 if (routerTable.name().contains(name)) {
-                    routerTable.routerLines().add(routerLine);
+                    routerTable.routerTableLines().add(routerLine);
                     contains = true;
                     break;
                 }

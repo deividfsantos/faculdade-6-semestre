@@ -61,21 +61,21 @@ class StructureTest {
         assertEquals(routers.get(0).netInterfaces().get(0).macAddress(), "00:00:00:00:00:05");
         assertEquals(routers.get(0).netInterfaces().get(1).ip(), "192.168.1.1/24");
         assertEquals(routers.get(0).netInterfaces().get(1).macAddress(), "00:00:00:00:00:06");
-        assertEquals(routers.get(0).routerTable().routerLines().size(), 2);
+        assertEquals(routers.get(0).routerTable().routerTableLines().size(), 2);
         assertEquals(routers.get(0).arpTable().size(), 0);
         assertEquals(routerTables.size(), 2);
         assertEquals(routerTables.get(0).name(), "r1");
-        assertEquals(routerTables.get(0).routerLines().size(), 2);
-        assertEquals(routerTables.get(0).routerLines().get(0).netDest(), "0.0.0.0");
-        assertEquals(routerTables.get(0).routerLines().get(0).netSource(), "192.168.0.0/24");
-        assertEquals(routerTables.get(0).routerLines().get(0).nextHop(), "0");
-        assertEquals(routerTables.get(0).routerLines().get(1).netDest(), "0.0.0.0");
-        assertEquals(routerTables.get(0).routerLines().get(1).netSource(), "192.168.1.0/24");
-        assertEquals(routerTables.get(0).routerLines().get(1).nextHop(), "1");
+        assertEquals(routerTables.get(0).routerTableLines().size(), 2);
+        assertEquals(routerTables.get(0).routerTableLines().get(0).nextHop(), "0.0.0.0");
+        assertEquals(routerTables.get(0).routerTableLines().get(0).netDest(), "192.168.0.0/24");
+        assertEquals(routerTables.get(0).routerTableLines().get(0).port(), 0);
+        assertEquals(routerTables.get(0).routerTableLines().get(1).nextHop(), "0.0.0.0");
+        assertEquals(routerTables.get(0).routerTableLines().get(1).netDest(), "192.168.1.0/24");
+        assertEquals(routerTables.get(0).routerTableLines().get(1).port(), 1);
         assertEquals(routerTables.get(1).name(), "r2");
-        assertEquals(routerTables.get(1).routerLines().size(), 1);
-        assertEquals(routerTables.get(1).routerLines().get(0).netDest(), "0.0.0.0");
-        assertEquals(routerTables.get(1).routerLines().get(0).netSource(), "192.168.0.0/24");
-        assertEquals(routerTables.get(1).routerLines().get(0).nextHop(), "0");
+        assertEquals(routerTables.get(1).routerTableLines().size(), 1);
+        assertEquals(routerTables.get(1).routerTableLines().get(0).nextHop(), "0.0.0.0");
+        assertEquals(routerTables.get(1).routerTableLines().get(0).netDest(), "192.168.0.0/24");
+        assertEquals(routerTables.get(1).routerTableLines().get(0).port(), 0);
     }
 }
