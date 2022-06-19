@@ -2,6 +2,8 @@ package com.t2.redes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Main {
 
@@ -33,77 +35,101 @@ public class Main {
         var output = new ArrayList<>();
         var sourceNode = getNodeByName(nodes, sourceName);
         var destNode = getNodeByName(nodes, destName);
-        String ipToFind = null;
         int ttl = 8;
-        var actualRouter = (Router) null;
 
+
+        var actualSourceRouter = (Router) null;
+        var actualDestRouter = (Router) null;
+        var actualSourceNode = sourceNode;
+        var actualDestNode = destNode;
+
+        var icmpReqStack = new LinkedList<>();
         var hardwareType = HardwareType.NODE;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 6; i++) {
             if (isAtSameNetwork(sourceNode.ipAddress(), destNode.ipAddress())) {
-                ipToFind = destNode.ipAddress();
-                if (notContainsInArpTable(sourceNode, destNode.ipAddress())) {
-                    //ARP
-                    output.add(noteOverPrint(sourceName, ipToFind, sourceNode.ipAddress()));
-                    output.add(arpReply(sourceNode.name(), destNode.name(), destNode.ipAddress(), destNode.macAddress()));
+                if (notContainsInArpTable(sourceNode, actualDestRouter, destNode.ipAddress(), hardwareType)) {
+                    output.add(noteOverPrint(sourceName, destNode.ipAddress(), sourceNode.ipAddress()));
                     sourceNode.arpTable().add(new NetInterface(destNode.ipAddress(), destNode.macAddress()));
-                } else {
-                    output.add(icmpRequest(sourceName, destName, sourceNode.ipAddress(), destNode.ipAddress(), ttl));
-                    output.add(icmpReply(sourceName, destName, destNode.ipAddress(), sourceNode.ipAddress(), ttl));
+                    output.add(arpReply(destNode.name(), sourceNode.name(), destNode.ipAddress(), destNode.macAddress()));
+                    destNode.arpTable().add(new NetInterface(sourceNode.ipAddress(), sourceNode.macAddress()));
                 }
             } else {
-                if (notContainsInArpTable(sourceNode, destNode.ipAddress())) {
+                if (notContainsInArpTable(actualSourceNode, actualDestRouter, actualSourceNode.defaultGateway(), hardwareType)) {
                     if (hardwareType == HardwareType.ROUTER) {
-                        RouterTableLine routerTableLineDest = getRouterDest(actualRouter, destNode.ipAddress());
+                        RouterTableLine routerTableLineDest = getRouterDest(actualDestRouter, destNode.ipAddress());
                         if (routerTableLineDest.netDest().contains("0.0.0.0")) {
                             //Router to Router
-                            output.add(noteOverPrint(actualRouter.name(), routerTableLineDest.nextHop(), actualRouter.netInterfaces().get(routerTableLineDest.port()).ip()));
+                            output.add(noteOverPrint(actualDestRouter.name(), routerTableLineDest.nextHop(), actualDestRouter.netInterfaces().get(routerTableLineDest.port()).ip()));
+                            var router = getRouter(routers, actualSourceNode.defaultGateway());
+                            var netInterface = getNetInterface(router.netInterfaces(), actualSourceNode.defaultGateway());
 
-                            for (Router router : routers) {
-                                for (NetInterface netInterface : router.netInterfaces()) {
-                                    if (netInterface.ip().contains(ipToFind)) {
-                                        output.add(arpReply(router.name(), actualRouter.name(), netInterface.ip(), netInterface.macAddress()));
-                                        sourceNode.arpTable().add(netInterface);
-                                        actualRouter = router;
-                                    }
-                                }
-                            }
+                            output.add(arpReply(actualDestRouter.name(), router.name(), netInterface.ip(), netInterface.macAddress()));
+                            actualDestRouter.arpTable().add(netInterface);
+                            sourceNode.arpTable().add(netInterface);
+                            actualDestRouter = router;
                         } else {
                             //Node to Router
-                            output.add(noteOverPrint(actualRouter.name(), destNode.ipAddress(), actualRouter.netInterfaces().get(routerTableLineDest.port()).ip()));
-                            output.add(arpReply(destNode.name(), actualRouter.name(), destNode.ipAddress(), destNode.macAddress()));
-                            actualRouter.arpTable().add(new NetInterface(destNode.ipAddress(), destNode.macAddress()));
+                            NetInterface currentNet = actualDestRouter.netInterfaces().get(routerTableLineDest.port());
+                            output.add(noteOverPrint(actualDestRouter.name(), destNode.ipAddress(), currentNet.ip()));
+                            output.add(arpReply(destNode.name(), actualDestRouter.name(), destNode.ipAddress(), destNode.macAddress()));
+                            actualDestRouter.arpTable().add(new NetInterface(destNode.ipAddress(), destNode.macAddress()));
+                            destNode.arpTable().add(new NetInterface(currentNet.ip(), currentNet.macAddress()));
                             hardwareType = HardwareType.NODE;
                         }
                     } else {
-                        ipToFind = sourceNode.defaultGateway();
-                        output.add(noteOverPrint(sourceName, ipToFind, sourceNode.ipAddress()));
-                        for (Router router : routers) {
-                            for (NetInterface netInterface : router.netInterfaces()) {
-                                if (netInterface.ip().contains(ipToFind)) {
-                                    actualRouter = router;
-                                    hardwareType = HardwareType.ROUTER;
-                                    sourceNode.arpTable().add(netInterface);
-                                    output.add(arpReply(sourceNode.name(), router.name(), netInterface.ip(), netInterface.macAddress()));
-                                }
-                            }
-                        }
+                        output.add(noteOverPrint(sourceName, actualSourceNode.defaultGateway(), sourceNode.ipAddress()));
+                        var router = getRouter(routers, actualSourceNode.defaultGateway());
+                        var netInterface = getNetInterface(router.netInterfaces(), actualSourceNode.defaultGateway());
+                        actualSourceNode.arpTable().add(netInterface);
+                        router.arpTable().add(new NetInterface(actualSourceNode.ipAddress(), actualSourceNode.macAddress()));
+                        output.add(arpReply(router.name(), actualSourceNode.name(), netInterface.ip(), netInterface.macAddress()));
+                        actualDestRouter = router;
                     }
                 } else {
-                    output.add(icmpRequest(sourceName, destName, sourceNode.ipAddress(), destNode.ipAddress(), ttl));
-                    output.add(icmpReply(sourceName, destName, destNode.ipAddress(), sourceNode.ipAddress(), ttl));
+                    if (hardwareType == HardwareType.NODE) {
+                        output.add(icmpRequest(actualDestRouter.name(), actualDestNode.name(), sourceNode.ipAddress(), destNode.ipAddress(), ttl));
+                    } else {
+                        output.add(icmpRequest(actualSourceNode.name(), actualDestNode.name(), sourceNode.ipAddress(), destNode.ipAddress(), ttl));
+                    }
+                    hardwareType = HardwareType.ROUTER;
                 }
             }
         }
-
-        //QUANDO O CARALHO DO ICMP TEM QUE RODAR?
 
         for (var item : output) {
             System.out.println(item);
         }
     }
 
+    private static NetInterface getNetInterface(List<NetInterface> netInterfaces, String defaultGateway) {
+        for (NetInterface netInterface :
+                netInterfaces) {
+            if (netInterface.ip().contains(defaultGateway)) {
+                return netInterface;
+            }
+        }
+        throw new RuntimeException("Net Interface not found");
+    }
+
+    private static Router getRouter(List<Router> routers, String defaultGateway) {
+        for (Router router :
+                routers) {
+            for (NetInterface netInterface :
+                    router.netInterfaces()) {
+                if (netInterface.ip().contains(defaultGateway)) {
+                    return router;
+                }
+            }
+        }
+        throw new RuntimeException("Router not found");
+    }
+
     private static RouterTableLine getRouterDest(Router actualRouter, String destIp) {
-        return actualRouter.routerTable().routerTableLines().stream().filter(routerTableLine -> routerTableLine.netDest().contains(getMask(destIp))).findFirst().orElse(actualRouter.routerTable().routerTableLines().get(actualRouter.routerTable().routerTableLines().size() - 1));
+        return actualRouter.routerTable().routerTableLines()
+                .stream()
+                .filter(routerTableLine -> routerTableLine.netDest().contains(getMask(destIp)))
+                .findFirst()
+                .orElse(actualRouter.routerTable().routerTableLines().get(actualRouter.routerTable().routerTableLines().size() - 1));
     }
 
     public static String getMask(String destIp) {
@@ -123,12 +149,17 @@ public class Main {
         return result.toString();
     }
 
-    private static boolean notContainsInArpTable(Node sourceNode, String destIp) {
+    private static boolean notContainsInArpTable(Node sourceNode, Router router, String destIp, HardwareType hardwareType) {
+        if (hardwareType == HardwareType.ROUTER) {
+            return router.arpTable().stream().noneMatch(netInterface -> netInterface.ip().contains(destIp));
+        }
         return sourceNode.arpTable().stream().noneMatch(netInterface -> netInterface.ip().contains(destIp));
     }
 
     private static String icmpRequest(String source, String dest, String srcIP, String destIP, int ttl) {
-        return String.format("%s ->> %s : ICMP Echo Request<br/>src=%s dst=%s ttl=%d", source, dest, srcIP, destIP, ttl);
+        String cleanedSourceIp = cleanIp(srcIP);
+        String cleanedDestIp = cleanIp(destIP);
+        return String.format("%s ->> %s : ICMP Echo Request<br/>src=%s dst=%s ttl=%d", source, dest, cleanedSourceIp, cleanedDestIp, ttl);
     }
 
     private static String icmpReply(String source, String dest, String srcIP, String destIP, int ttl) {
@@ -139,8 +170,8 @@ public class Main {
         return String.format("%s ->> %s : ICMP Time Exceeded<br/>src=%s dst=%s ttl=%d", source, dest, srcIP, destIP, ttl);
     }
 
-    private static String arpReply(String sourceName, String destName, String destIp, String destMac) {
-        return String.format("%s ->> %s : ARP Reply<br/>%s is at %s", destName, sourceName, cleanIp(destIp), destMac);
+    private static String arpReply(String source, String dest, String destIp, String destMac) {
+        return String.format("%s ->> %s : ARP Reply<br/>%s is at %s", source, dest, cleanIp(destIp), destMac);
     }
 
     private static String noteOverPrint(String sourceName, String destIp, String sourceIp) {
