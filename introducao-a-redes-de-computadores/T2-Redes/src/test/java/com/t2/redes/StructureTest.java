@@ -57,9 +57,9 @@ class StructureTest {
         assertEquals(routers.get(0).arpTable().size(), 0);
         assertEquals(routers.get(0).name(), "r1");
         assertEquals(routers.get(0).netInterfaces().size(), 2);
-        assertEquals(routers.get(0).netInterfaces().get(0).ip(), "192.168.0.1/24");
+        assertEquals(routers.get(0).netInterfaces().get(0).ipAddress(), "192.168.0.1/24");
         assertEquals(routers.get(0).netInterfaces().get(0).macAddress(), "00:00:00:00:00:05");
-        assertEquals(routers.get(0).netInterfaces().get(1).ip(), "192.168.1.1/24");
+        assertEquals(routers.get(0).netInterfaces().get(1).ipAddress(), "192.168.1.1/24");
         assertEquals(routers.get(0).netInterfaces().get(1).macAddress(), "00:00:00:00:00:06");
         assertEquals(routers.get(0).routerTable().routerTableLines().size(), 2);
         assertEquals(routers.get(0).arpTable().size(), 0);
