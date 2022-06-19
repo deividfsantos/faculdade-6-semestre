@@ -45,6 +45,7 @@ public class Main {
         var currentRouter = (Router) null;
 
         var sourceMode = HardwareType.NODE;
+        boolean replyMode = false;
 
         for (int i = 0; i < 10; i++) {
             if (sourceMode == HardwareType.ROUTER) {
@@ -55,25 +56,30 @@ public class Main {
                             output.add(arpReplyMessage(currentDest.name(), currentRouter.name(), currentDest.ipAddress(), currentDest.macAddress()));
                             currentRouter.arpTable().add(new NetInterface(currentDest.ipAddress(), currentDest.macAddress()));
                             currentDest.arpTable().add(new NetInterface(netInterface.ipAddress(), netInterface.macAddress()));
-                        } else {
+                        } else if (!replyMode){
                             output.add(icmpRequestMessage(currentRouter.name(), currentDest.name(), sourceNode.ipAddress(), destNode.ipAddress(), 8));
+                            currentSource = currentDest;
+                            currentDest = sourceNode;
+                            replyMode = true;
+                            sourceMode = HardwareType.NODE;
                         }
                     }
                 }
-                if (destNode.ipAddress().equalsIgnoreCase(currentDest.ipAddress())){
-                    var temp = currentSource;
-                    currentSource = currentDest;
-                    currentDest = temp;
-                    if (isAtSameNetwork(sourceNode.ipAddress(), currentDest.ipAddress())) {
-                    } else {
-                        if (notContainsInArpTable(currentSource.arpTable(), currentSource.defaultGateway())) {
-                        } else {
-                            Router router = getRouter(routers, currentSource.defaultGateway());
-                            output.add(icmpReplyMessage(currentSource.name(), router.name(), destNode.ipAddress(), sourceNode.ipAddress(), 8));
-                            currentRouter = router;
-                        }
-                    }
-                }
+
+//                if (destNode.ipAddress().equalsIgnoreCase(currentDest.ipAddress())){
+//                    var temp = currentSource;
+//                    currentSource = currentDest;
+//                    currentDest = temp;
+//                    if (isAtSameNetwork(sourceNode.ipAddress(), currentDest.ipAddress())) {
+//                    } else {
+//                        if (notContainsInArpTable(currentSource.arpTable(), currentSource.defaultGateway())) {
+//                        } else {
+//                            Router router = getRouter(routers, currentSource.defaultGateway());
+//                            output.add(icmpReplyMessage(currentSource.name(), router.name(), destNode.ipAddress(), sourceNode.ipAddress(), 8));
+//                            currentRouter = router;
+//                        }
+//                    }
+//                }
             } else {
                 if (isAtSameNetwork(currentSource.ipAddress(), currentDest.ipAddress())) {
                     if (notContainsInArpTable(currentSource.arpTable(), currentDest.ipAddress())) {
@@ -99,6 +105,19 @@ public class Main {
                         output.add(icmpRequestMessage(currentSource.name(), router.name(), sourceNode.ipAddress(), destNode.ipAddress(), 8));
                         currentRouter = router;
                         sourceMode = HardwareType.ROUTER;
+                    }
+                }
+                if(currentSource.ipAddress().equalsIgnoreCase(destNode.ipAddress()) && replyMode) {
+                    if (isAtSameNetwork(currentSource.ipAddress(), currentDest.ipAddress())) {
+
+                    } else {
+                        if (notContainsInArpTable(currentSource.arpTable(), currentSource.defaultGateway())) {
+                        } else {
+                            Router router = getRouter(routers, currentSource.defaultGateway());
+                            output.add(icmpReplyMessage(currentSource.name(), router.name(), destNode.ipAddress(), sourceNode.ipAddress(), 8));
+                            currentRouter = router;
+
+                        }
                     }
                 }
             }
