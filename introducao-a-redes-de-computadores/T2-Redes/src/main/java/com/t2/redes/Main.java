@@ -85,6 +85,8 @@ public class Main {
                         currentRouter = router;
                         end = true;
                     }
+                } else {
+
                 }
             } else {
                 if (isAtSameNetwork(currentSource.ipAddress(), currentDest.ipAddress())) {
