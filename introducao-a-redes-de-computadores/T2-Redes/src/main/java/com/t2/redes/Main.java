@@ -63,7 +63,6 @@ public class Main {
                 break;
             }
             if (sourceMode == HardwareType.ROUTER) {
-
                 List<RouterTableLine> routerTableLines = currentRouter.routerTable().routerTableLines();
                 NetInterface netInterface = getNetInterface(currentDest, currentRouter, routerTableLines);
                 if (isAtSameNetwork(netInterface.ipAddress(), currentDest.ipAddress())) {
@@ -86,11 +85,16 @@ public class Main {
                     }
                 } else {
                     RouterTableLine routerTableLine = currentRouter.routerTable().routerTableLines().get(currentRouter.routerTable().routerTableLines().size() - 1);
-                    if (notContainsInArpTable(currentRouter.arpTable(), netInterface.ipAddress())) {
+                    Router routerDest = getRouter(routers, routerTableLine.nextHop());
+                    NetInterface netInterfaceDest = getNetInterface(routerDest.netInterfaces(), routerTableLine.nextHop());
+                    if (notContainsInArpTable(currentRouter.arpTable(), netInterfaceDest.ipAddress())) {
                         output.add(arpRequestMessage(currentRouter.name(), routerTableLine.nextHop(), netInterface.ipAddress()));
-                        output.add(arpReplyMessage(currentDest.name(), currentRouter.name(), routerTableLine.nextHop(), currentDest.macAddress()));
-                        currentRouter.arpTable().add(new NetInterface(currentDest.ipAddress(), currentDest.macAddress()));
-                        currentDest.arpTable().add(new NetInterface(netInterface.ipAddress(), netInterface.macAddress()));
+                        output.add(arpReplyMessage(routerDest.name(), currentRouter.name(), routerTableLine.nextHop(), netInterfaceDest.macAddress()));
+                        currentRouter.arpTable().add(new NetInterface(netInterfaceDest.ipAddress(), netInterfaceDest.macAddress()));
+                        routerDest.arpTable().add(new NetInterface(netInterface.ipAddress(), netInterface.macAddress()));
+                    } else if (!replyMode) {
+                        output.add(icmpRequestMessage(currentRouter.name(), routerDest.name(), sourceNode.ipAddress(), destNode.ipAddress(), 8));
+                        currentRouter = routerDest;
                     }
                 }
             } else {
@@ -165,10 +169,10 @@ public class Main {
         throw new RuntimeException("Net Interface not found");
     }
 
-    private static Router getRouter(List<Router> routers, String defaultGateway) {
+    private static Router getRouter(List<Router> routers, String ipAddress) {
         for (Router router : routers) {
             for (NetInterface netInterface : router.netInterfaces()) {
-                if (netInterface.ipAddress().contains(defaultGateway)) {
+                if (netInterface.ipAddress().contains(ipAddress)) {
                     return router;
                 }
             }
