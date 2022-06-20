@@ -66,7 +66,6 @@ public class Main {
 
                 List<RouterTableLine> routerTableLines = currentRouter.routerTable().routerTableLines();
                 NetInterface netInterface = getNetInterface(currentDest, currentRouter, routerTableLines);
-
                 if (isAtSameNetwork(netInterface.ipAddress(), currentDest.ipAddress())) {
                     if (notContainsInArpTable(currentRouter.arpTable(), currentDest.ipAddress())) {
                         output.add(arpRequestMessage(currentRouter.name(), currentDest.ipAddress(), netInterface.ipAddress()));
@@ -86,7 +85,13 @@ public class Main {
                         end = true;
                     }
                 } else {
-
+                    RouterTableLine routerTableLine = currentRouter.routerTable().routerTableLines().get(currentRouter.routerTable().routerTableLines().size() - 1);
+                    if (notContainsInArpTable(currentRouter.arpTable(), netInterface.ipAddress())) {
+                        output.add(arpRequestMessage(currentRouter.name(), routerTableLine.nextHop(), netInterface.ipAddress()));
+                        output.add(arpReplyMessage(currentDest.name(), currentRouter.name(), routerTableLine.nextHop(), currentDest.macAddress()));
+                        currentRouter.arpTable().add(new NetInterface(currentDest.ipAddress(), currentDest.macAddress()));
+                        currentDest.arpTable().add(new NetInterface(netInterface.ipAddress(), netInterface.macAddress()));
+                    }
                 }
             } else {
                 if (isAtSameNetwork(currentSource.ipAddress(), currentDest.ipAddress())) {
@@ -137,7 +142,7 @@ public class Main {
                 return currentRouter.netInterfaces().get(port);
             }
         }
-        return new NetInterface(currentRouter.netInterfaces().get(currentRouter.netInterfaces().size() - 1).ipAddress(), currentRouter.netInterfaces().get(currentRouter.netInterfaces().size() - 1).macAddress());
+        return currentRouter.netInterfaces().get(routerTableLines.get(routerTableLines.size() - 1).port());
     }
 
 
