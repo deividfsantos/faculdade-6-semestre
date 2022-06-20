@@ -58,7 +58,7 @@ public class Main {
         boolean replyMode = false;
 
         boolean end = false;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             if (end) {
                 break;
             }
@@ -79,7 +79,7 @@ public class Main {
                         sourceMode = HardwareType.NODE;
                     } else {
                         Router router = getRouter(routers, currentSource.defaultGateway());
-                        output.add(icmpReplyMessage(router.name(), currentDest.name(), destNode.ipAddress(), sourceNode.ipAddress(), 8));
+                        output.add(icmpReplyMessage(currentRouter.name(), currentDest.name(), destNode.ipAddress(), sourceNode.ipAddress(), 8));
                         currentRouter = router;
                         end = true;
                     }
@@ -94,6 +94,9 @@ public class Main {
                         routerDest.arpTable().add(new NetInterface(netInterface.ipAddress(), netInterface.macAddress()));
                     } else if (!replyMode) {
                         output.add(icmpRequestMessage(currentRouter.name(), routerDest.name(), sourceNode.ipAddress(), destNode.ipAddress(), 8));
+                        currentRouter = routerDest;
+                    } else {
+                        output.add(icmpReplyMessage(currentRouter.name(), routerDest.name(), destNode.ipAddress(), sourceNode.ipAddress(), 8));
                         currentRouter = routerDest;
                     }
                 }

@@ -153,7 +153,7 @@ class MainTest {
         assertEquals("n2 ->> r3 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(12));
         assertEquals("Note over r3 : ARP Request<br/>Who has 50.0.0.1? Tell 50.0.0.2", run.get(13));
         assertEquals("r1 ->> r3 : ARP Reply<br/>50.0.0.1 is at 00:00:00:00:00:12", run.get(14));
-//        assertEquals("r3 ->> r1 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(15));
-//        assertEquals("r1 ->> n1 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(16));
+        assertEquals("r3 ->> r1 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(15));
+        assertEquals("r1 ->> n1 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(16));
     }
 }
