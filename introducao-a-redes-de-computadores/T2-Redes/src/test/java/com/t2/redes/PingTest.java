@@ -9,31 +9,33 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-class MainTest {
+class PingTest {
+
+    Ping ping = new Ping();
 
     @Test
     void getMask1() {
-        String mask = Main.getMask("192.168.0.0/24");
+        String mask = ping.getMask("192.168.0.0/24");
         assertEquals("192.168.0.0", mask);
     }
 
     @Test
     void getMask2() {
-        String mask = Main.getMask("40.0.0.10/8");
+        String mask = ping.getMask("40.0.0.10/8");
         assertEquals("40.0.0.0", mask);
     }
 
     @Test
     void getMask3() {
-        String mask = Main.getMask("40.3.4.10/16");
+        String mask = ping.getMask("40.3.4.10/16");
         assertEquals("40.3.0.0", mask);
     }
 
     @Test
     void getMask4() {
-        String mask1 = Main.getMask("192.168.0.3/24");
-        String mask2 = Main.getMask("192.168.0.2/24");
-        String mask3 = Main.getMask("192.168.1.2/24");
+        String mask1 = ping.getMask("192.168.0.3/24");
+        String mask2 = ping.getMask("192.168.0.2/24");
+        String mask3 = ping.getMask("192.168.1.2/24");
         assertEquals("192.168.0.0", mask2);
         assertEquals("192.168.1.0", mask3);
         assertEquals(mask1, mask2);
@@ -62,7 +64,7 @@ class MainTest {
         var routerTables = new ArrayList<RouterTable>();
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
-        List<String> run = Main.run(nodes, routers, routerTables, "n1", "n2");
+        List<String> run = ping.run(nodes, routers, routerTables, "n1", "n2");
         assertEquals(4, run.size());
         assertEquals("Note over n1 : ARP Request<br/>Who has 192.168.0.3? Tell 192.168.0.2", run.get(0));
         assertEquals("n2 ->> n1 : ARP Reply<br/>192.168.0.3 is at 00:00:00:00:00:02", run.get(1));
@@ -92,16 +94,16 @@ class MainTest {
         var routerTables = new ArrayList<RouterTable>();
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
-        List<String> run = Main.run(nodes, routers, routerTables, "n1", "n3");
+        List<String> run = ping.run(nodes, routers, routerTables, "n1", "n3");
         assertEquals(8, run.size());
         assertEquals("Note over n1 : ARP Request<br/>Who has 192.168.0.1? Tell 192.168.0.2", run.get(0));
         assertEquals("r1 ->> n1 : ARP Reply<br/>192.168.0.1 is at 00:00:00:00:00:05", run.get(1));
         assertEquals("n1 ->> r1 : ICMP Echo Request<br/>src=192.168.0.2 dst=192.168.1.2 ttl=8", run.get(2));
         assertEquals("Note over r1 : ARP Request<br/>Who has 192.168.1.2? Tell 192.168.1.1", run.get(3));
         assertEquals("n3 ->> r1 : ARP Reply<br/>192.168.1.2 is at 00:00:00:00:00:03", run.get(4));
-        assertEquals("r1 ->> n3 : ICMP Echo Request<br/>src=192.168.0.2 dst=192.168.1.2 ttl=8", run.get(5));
+        assertEquals("r1 ->> n3 : ICMP Echo Request<br/>src=192.168.0.2 dst=192.168.1.2 ttl=7", run.get(5));
         assertEquals("n3 ->> r1 : ICMP Echo Reply<br/>src=192.168.1.2 dst=192.168.0.2 ttl=8", run.get(6));
-        assertEquals("r1 ->> n1 : ICMP Echo Reply<br/>src=192.168.1.2 dst=192.168.0.2 ttl=8", run.get(7));
+        assertEquals("r1 ->> n1 : ICMP Echo Reply<br/>src=192.168.1.2 dst=192.168.0.2 ttl=7", run.get(7));
     }
 
     @Test
@@ -136,25 +138,25 @@ class MainTest {
         var routerTables = new ArrayList<RouterTable>();
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
-        List<String> run = Main.run(nodes, routers, routerTables, "n1", "n2");
+        List<String> run = ping.run(nodes, routers, routerTables, "n1", "n2");
         assertEquals(17, run.size());
         assertEquals("Note over n1 : ARP Request<br/>Who has 10.0.0.1? Tell 10.0.0.10", run.get(0));
         assertEquals("r1 ->> n1 : ARP Reply<br/>10.0.0.1 is at 00:00:00:00:00:10", run.get(1));
         assertEquals("n1 ->> r1 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=8", run.get(2));
         assertEquals("Note over r1 : ARP Request<br/>Who has 20.0.0.2? Tell 20.0.0.1", run.get(3));
         assertEquals("r2 ->> r1 : ARP Reply<br/>20.0.0.2 is at 00:00:00:00:00:20", run.get(4));
-        assertEquals("r1 ->> r2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=8", run.get(5));
+        assertEquals("r1 ->> r2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=7", run.get(5));
         assertEquals("Note over r2 : ARP Request<br/>Who has 30.0.0.2? Tell 30.0.0.1", run.get(6));
         assertEquals("r3 ->> r2 : ARP Reply<br/>30.0.0.2 is at 00:00:00:00:00:30", run.get(7));
-        assertEquals("r2 ->> r3 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=8", run.get(8));
+        assertEquals("r2 ->> r3 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=6", run.get(8));
         assertEquals("Note over r3 : ARP Request<br/>Who has 40.0.0.10? Tell 40.0.0.1", run.get(9));
         assertEquals("n2 ->> r3 : ARP Reply<br/>40.0.0.10 is at 00:00:00:00:00:02", run.get(10));
-        assertEquals("r3 ->> n2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=8", run.get(11));
+        assertEquals("r3 ->> n2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=5", run.get(11));
         assertEquals("n2 ->> r3 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(12));
         assertEquals("Note over r3 : ARP Request<br/>Who has 50.0.0.1? Tell 50.0.0.2", run.get(13));
         assertEquals("r1 ->> r3 : ARP Reply<br/>50.0.0.1 is at 00:00:00:00:00:12", run.get(14));
-        assertEquals("r3 ->> r1 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(15));
-        assertEquals("r1 ->> n1 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(16));
+        assertEquals("r3 ->> r1 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=7", run.get(15));
+        assertEquals("r1 ->> n1 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=6", run.get(16));
     }
 
     @Test
@@ -188,28 +190,29 @@ class MainTest {
         var routerTables = new ArrayList<RouterTable>();
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
-        List<String> run = Main.run(nodes, routers, routerTables, "n1", "n2");
-//        assertEquals(8, run.size());
+        List<String> run = ping.run(nodes, routers, routerTables, "n1", "n2");
+        assertEquals(22, run.size());
         assertEquals("Note over n1 : ARP Request<br/>Who has 10.0.0.1? Tell 10.0.0.10", run.get(0));
         assertEquals("r1 ->> n1 : ARP Reply<br/>10.0.0.1 is at 00:00:00:00:00:10", run.get(1));
         assertEquals("n1 ->> r1 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=8", run.get(2));
         assertEquals("Note over r1 : ARP Request<br/>Who has 20.0.0.2? Tell 20.0.0.1", run.get(3));
         assertEquals("r2 ->> r1 : ARP Reply<br/>20.0.0.2 is at 00:00:00:00:00:20", run.get(4));
-        assertEquals("r1 ->> r2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=8", run.get(5));
+        assertEquals("r1 ->> r2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=7", run.get(5));
         assertEquals("Note over r2 : ARP Request<br/>Who has 30.0.0.2? Tell 30.0.0.1", run.get(6));
         assertEquals("r3 ->> r2 : ARP Reply<br/>30.0.0.2 is at 00:00:00:00:00:30", run.get(7));
-        assertEquals("r2 ->> r3 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=8", run.get(8));
+        assertEquals("r2 ->> r3 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=6", run.get(8));
         assertEquals("Note over r3 : ARP Request<br/>Who has 40.0.0.10? Tell 40.0.0.1", run.get(9));
         assertEquals("n2 ->> r3 : ARP Reply<br/>40.0.0.10 is at 00:00:00:00:00:02", run.get(10));
-        assertEquals("r3 ->> n2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=8", run.get(11));
+        assertEquals("r3 ->> n2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=5", run.get(11));
         assertEquals("n2 ->> r3 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(12));
-        assertEquals("r3 ->> r2 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(13));
-        assertEquals("r2 ->> r3 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(14));
-        assertEquals("r3 ->> r2 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(15));
-        assertEquals("r2 ->> r3 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(16));
-        assertEquals("r3 ->> r2 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(17));
-        assertEquals("r2 ->> r3 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(18));
-        assertEquals("r3 ->> r2 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=8", run.get(19));
+        assertEquals("r3 ->> r2 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=7", run.get(13));
+        assertEquals("r2 ->> r3 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=6", run.get(14));
+        assertEquals("r3 ->> r2 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=5", run.get(15));
+        assertEquals("r2 ->> r3 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=4", run.get(16));
+        assertEquals("r3 ->> r2 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=3", run.get(17));
+        assertEquals("r2 ->> r3 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=2", run.get(18));
+        assertEquals("r3 ->> r2 : ICMP Echo Reply<br/>src=40.0.0.10 dst=10.0.0.10 ttl=1", run.get(19));
         assertEquals("r2 ->> r3 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=40.0.0.10 ttl=8", run.get(20));
+        assertEquals("r3 ->> n2 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=40.0.0.10 ttl=7", run.get(21));
     }
 }
