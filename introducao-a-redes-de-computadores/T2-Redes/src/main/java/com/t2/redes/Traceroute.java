@@ -60,9 +60,6 @@ public class Traceroute {
         var ttlTimeExceeded = 8;
         var lastTtl = ttlRequest;
         while (!end && ttlTimeExceeded > 0) {
-            if (output.contains("r1 ->> r2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=2")) {
-                System.out.println("x");
-            }
             if (ttlReply == 0 || ttlRequest == 0) {
                 currentDest = currentSource;
             }
@@ -112,7 +109,7 @@ public class Traceroute {
                         if (timeExceededSourceIp == null) {
                             timeExceededSourceIp = netInterface.ipAddress();
                         }
-                        output.add(messages.icmpTimeExceededMessage(currentRouter.name(), routerDest.name(), netInterface.ipAddress(), currentSource.ipAddress(), ttlTimeExceeded));
+                        output.add(messages.icmpTimeExceededMessage(currentRouter.name(), routerDest.name(), timeExceededSourceIp, currentSource.ipAddress(), ttlTimeExceeded));
                         currentRouter = routerDest;
                         ttlTimeExceeded--;
                         currentDest = sourceNode;
@@ -161,10 +158,6 @@ public class Traceroute {
                     }
                 }
             }
-        }
-
-        for (var item : output) {
-            System.out.println(item);
         }
         return output;
     }
