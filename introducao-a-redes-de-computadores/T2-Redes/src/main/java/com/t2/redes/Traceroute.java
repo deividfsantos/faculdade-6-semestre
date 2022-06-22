@@ -194,7 +194,7 @@ public class Traceroute {
                 return netInterface;
             }
         }
-        throw new RuntimeException("Net Interface not found");
+        return netInterfaces.get(0);
     }
 
     private Router getRouter(List<Router> routers, String ipAddress) {
@@ -205,7 +205,7 @@ public class Traceroute {
                 }
             }
         }
-        throw new RuntimeException("Router not found");
+        return routers.get(0);
     }
 
     private boolean isAtSameNetwork(String sourceIp, String destIp) {
