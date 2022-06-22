@@ -193,7 +193,7 @@ class TraceRouteTest {
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
         List<String> run = traceroute.run(nodes, routers, "n1", "n2");
-//        assertEquals(28, run.size());
+        assertEquals(18, run.size());
         assertEquals("Note over n1 : ARP Request<br/>Who has 10.0.0.1? Tell 10.0.0.10", run.get(0));
         assertEquals("r1 ->> n1 : ARP Reply<br/>10.0.0.1 is at 00:00:00:00:00:10", run.get(1));
         assertEquals("n1 ->> r1 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=1", run.get(2));
@@ -206,11 +206,11 @@ class TraceRouteTest {
         assertEquals("r3 ->> r2 : ARP Reply<br/>30.0.0.2 is at 00:00:00:00:00:30", run.get(9));
         assertEquals("r2 ->> r3 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=8", run.get(10));
         assertEquals("r3 ->> r2 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=7", run.get(11));
-//        assertEquals("r2 ->> r3 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=6", run.get(12));
-//        assertEquals("r3 ->> r2 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=5", run.get(13));
-//        assertEquals("r2 ->> r3 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=4", run.get(14));
-//        assertEquals("r3 ->> r2 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=3", run.get(15));
-//        assertEquals("r2 ->> r3 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=2", run.get(16));
-//        assertEquals("r3 ->> r2 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=1", run.get(17));
+        assertEquals("r2 ->> r3 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=6", run.get(12));
+        assertEquals("r3 ->> r2 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=5", run.get(13));
+        assertEquals("r2 ->> r3 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=4", run.get(14));
+        assertEquals("r3 ->> r2 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=3", run.get(15));
+        assertEquals("r2 ->> r3 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=2", run.get(16));
+        assertEquals("r3 ->> r2 : ICMP Time Exceeded<br/>src=30.0.0.1 dst=10.0.0.10 ttl=1", run.get(17));
     }
 }
