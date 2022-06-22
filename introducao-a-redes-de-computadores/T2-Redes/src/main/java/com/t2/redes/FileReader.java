@@ -14,13 +14,24 @@ public class FileReader {
             Path path = Paths.get(buildFilePath(fileName));
             return Files.readAllLines(path, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            try {
+                Path path = Paths.get(buildResourcesFilePath(fileName));
+                return Files.readAllLines(path, StandardCharsets.UTF_8);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
+    }
+
+    private static String buildResourcesFilePath(String fileName) {
+        String projectDirectory = System.getProperty("user.dir");
+        String fileSeparator = System.getProperty("file.separator");
+        return projectDirectory + fileSeparator + "src" + fileSeparator + "main" + fileSeparator + "resources" + fileSeparator + fileName;
     }
 
     private static String buildFilePath(String fileName) {
         String projectDirectory = System.getProperty("user.dir");
         String fileSeparator = System.getProperty("file.separator");
-        return projectDirectory + fileSeparator + "src" + fileSeparator + "main" + fileSeparator + "resources" + fileSeparator + fileName;
+        return projectDirectory + fileSeparator + fileName;
     }
 }

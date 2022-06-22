@@ -33,6 +33,9 @@ public class Ping {
         var ttlReply = 8;
         var ttlTimeExceeded = 8;
         while (!end && ttlTimeExceeded > 0) {
+            if (output.contains("r5 ->> n6 : ICMP Echo Request<br/>src=10.0.0.10 dst=60.0.0.10 ttl=3")) {
+                System.out.print("");
+            }
             if (ttlReply == 0 || ttlRequest == 0) {
                 currentDest = destNode;
             }
@@ -44,7 +47,7 @@ public class Ping {
                         output.add(messages.arpRequestMessage(currentRouter.name(), currentDest.ipAddress(), netInterface.ipAddress()));
                         output.add(messages.arpReplyMessage(currentDest.name(), currentRouter.name(), currentDest.ipAddress(), currentDest.macAddress()));
                         currentRouter.arpTable().add(new NetInterface(currentDest.ipAddress(), currentDest.macAddress()));
-                        currentDest.arpTable().add(new NetInterface(netInterface.ipAddress(), netInterface.macAddress()));
+                        currentDest.arpTable().add(netInterface);
                     } else if (ttlReply == 0 || ttlRequest == 0) {
                         output.add(messages.icmpTimeExceededMessage(currentRouter.name(), currentDest.name(), timeExceededSourceIp, destNode.ipAddress(), ttlTimeExceeded));
                         currentSource = currentDest;
@@ -96,6 +99,7 @@ public class Ping {
                         output.add(messages.arpRequestMessage(currentSource.name(), currentDest.ipAddress(), currentSource.ipAddress()));
                         output.add(messages.arpReplyMessage(currentDest.name(), currentSource.name(), currentDest.ipAddress(), currentDest.macAddress()));
                         currentSource.arpTable().add(new NetInterface(currentDest.ipAddress(), currentDest.macAddress()));
+                        currentDest.arpTable().add(new NetInterface(currentSource.ipAddress(), currentSource.macAddress()));
                     }
                     output.add(messages.icmpRequestMessage(sourceName, destName, currentSource.ipAddress(), currentDest.ipAddress(), ttlRequest));
                     ttlRequest--;
@@ -152,10 +156,6 @@ public class Ping {
         throw new RuntimeException("Router not found in router table.");
     }
 
-    private List<RouterTableLine> getRouterTableLines(Router currentRouter) {
-        return currentRouter.routerTable().routerTableLines();
-    }
-
     private NetInterface getNetInterfaceFromNode(Router router, String defaultGateway) {
         for (NetInterface netInterface : router.netInterfaces()) {
             if (netInterface.ipAddress().contains(defaultGateway)) {
@@ -192,7 +192,7 @@ public class Ping {
                 return netInterface;
             }
         }
-        throw new RuntimeException("Net Interface not found");
+        return netInterfaces.get(0);
     }
 
     private Router getRouter(List<Router> routers, String ipAddress) {
@@ -203,7 +203,7 @@ public class Ping {
                 }
             }
         }
-        throw new RuntimeException("Router not found");
+        return routers.get(0);
     }
 
     private RouterTableLine getRouterDest(Router actualRouter, String destIp) {
