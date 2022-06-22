@@ -7,40 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class PingTest {
 
     Ping ping = new Ping();
-
-    @Test
-    void getMask1() {
-        String mask = ping.getMask("192.168.0.0/24");
-        assertEquals("192.168.0.0", mask);
-    }
-
-    @Test
-    void getMask2() {
-        String mask = ping.getMask("40.0.0.10/8");
-        assertEquals("40.0.0.0", mask);
-    }
-
-    @Test
-    void getMask3() {
-        String mask = ping.getMask("40.3.4.10/16");
-        assertEquals("40.3.0.0", mask);
-    }
-
-    @Test
-    void getMask4() {
-        String mask1 = ping.getMask("192.168.0.3/24");
-        String mask2 = ping.getMask("192.168.0.2/24");
-        String mask3 = ping.getMask("192.168.1.2/24");
-        assertEquals("192.168.0.0", mask2);
-        assertEquals("192.168.1.0", mask3);
-        assertEquals(mask1, mask2);
-        assertNotEquals(mask1, mask3);
-    }
 
     @Test
     void test1() {

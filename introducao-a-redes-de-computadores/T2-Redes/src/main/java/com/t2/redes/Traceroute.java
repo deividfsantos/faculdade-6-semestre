@@ -7,9 +7,11 @@ import java.util.List;
 public class Traceroute {
 
     private final Messages messages;
+    private final Mask mask;
 
     public Traceroute() {
         this.messages = new Messages();
+        this.mask = new Mask();
     }
 
     public static void main(String[] args) {
@@ -58,25 +60,32 @@ public class Traceroute {
         var ttlTimeExceeded = 8;
         var lastTtl = ttlRequest;
         while (!end && ttlTimeExceeded > 0) {
+            if (output.contains("r1 ->> r2 : ICMP Echo Request<br/>src=10.0.0.10 dst=40.0.0.10 ttl=2")) {
+                System.out.println("x");
+            }
             if (ttlReply == 0 || ttlRequest == 0) {
-                currentDest = destNode;
+                currentDest = currentSource;
             }
             if (sourceMode == HardwareType.ROUTER) {
                 List<RouterTableLine> routerTableLines = currentRouter.routerTable().routerTableLines();
                 NetInterface netInterface = getNetInterface(currentDest, currentRouter, routerTableLines);
                 if (isAtSameNetwork(netInterface.ipAddress(), currentDest.ipAddress())) {
-                    if (ttlReply <= 0 || ttlRequest <= 0) {
-                        output.add(messages.icmpTimeExceededMessage(currentRouter.name(), currentSource.name(), currentSource.defaultGateway(), currentSource.ipAddress(), ttlTimeExceeded));
-                        currentSource = sourceNode;
-                        ttlTimeExceeded = 8;
-                        sourceMode = HardwareType.NODE;
-                        ttlRequest = lastTtl + 1;
-                        lastTtl = ttlRequest;
-                    } else if (notContainsInArpTable(currentRouter.arpTable(), currentDest.ipAddress())) {
+                    if (notContainsInArpTable(currentRouter.arpTable(), currentDest.ipAddress())) {
                         output.add(messages.arpRequestMessage(currentRouter.name(), currentDest.ipAddress(), netInterface.ipAddress()));
                         output.add(messages.arpReplyMessage(currentDest.name(), currentRouter.name(), currentDest.ipAddress(), currentDest.macAddress()));
                         currentRouter.arpTable().add(new NetInterface(currentDest.ipAddress(), currentDest.macAddress()));
                         currentDest.arpTable().add(new NetInterface(netInterface.ipAddress(), netInterface.macAddress()));
+                    } else if (ttlReply <= 0 || ttlRequest <= 0) {
+                        if (timeExceededSourceIp == null) {
+                            timeExceededSourceIp = netInterface.ipAddress();
+                        }
+                        output.add(messages.icmpTimeExceededMessage(currentRouter.name(), currentSource.name(), timeExceededSourceIp, currentSource.ipAddress(), ttlTimeExceeded));
+                        currentDest = destNode;
+                        ttlTimeExceeded = 8;
+                        sourceMode = HardwareType.NODE;
+                        ttlRequest = lastTtl + 1;
+                        lastTtl = ttlRequest;
+                        timeExceededSourceIp = null;
                     } else if (!replyMode) {
                         output.add(messages.icmpRequestMessage(currentRouter.name(), currentDest.name(), sourceNode.ipAddress(), destNode.ipAddress(), ttlRequest));
                         currentSource = currentDest;
@@ -91,21 +100,22 @@ public class Traceroute {
                         end = true;
                     }
                 } else {
-                    RouterTableLine routerTableLine = currentRouter.routerTable().routerTableLines().get(currentRouter.routerTable().routerTableLines().size() - 1);
+                    RouterTableLine routerTableLine = getRouterTableLine(currentRouter, currentDest.ipAddress());
                     Router routerDest = getRouter(routers, routerTableLine.nextHop());
                     NetInterface netInterfaceDest = getNetInterface(routerDest.netInterfaces(), routerTableLine.nextHop());
-                    if (ttlReply <= 0 || ttlRequest <= 0) {
-                        output.add(messages.icmpTimeExceededMessage(currentRouter.name(), routerDest.name(), netInterface.ipAddress(), currentSource.ipAddress(), ttlTimeExceeded));
-                        currentRouter = routerDest;
-                        ttlTimeExceeded--;
-                        sourceMode = HardwareType.NODE;
-                        ttlRequest = lastTtl + 1;
-                        lastTtl = ttlRequest;
-                    } else if (notContainsInArpTable(currentRouter.arpTable(), netInterfaceDest.ipAddress())) {
+                    if (notContainsInArpTable(currentRouter.arpTable(), netInterfaceDest.ipAddress())) {
                         output.add(messages.arpRequestMessage(currentRouter.name(), routerTableLine.nextHop(), netInterface.ipAddress()));
                         output.add(messages.arpReplyMessage(routerDest.name(), currentRouter.name(), routerTableLine.nextHop(), netInterfaceDest.macAddress()));
                         currentRouter.arpTable().add(new NetInterface(netInterfaceDest.ipAddress(), netInterfaceDest.macAddress()));
                         routerDest.arpTable().add(new NetInterface(netInterface.ipAddress(), netInterface.macAddress()));
+                    } else if (ttlReply <= 0 || ttlRequest <= 0) {
+                        if (timeExceededSourceIp == null) {
+                            timeExceededSourceIp = netInterface.ipAddress();
+                        }
+                        output.add(messages.icmpTimeExceededMessage(currentRouter.name(), routerDest.name(), netInterface.ipAddress(), currentSource.ipAddress(), ttlTimeExceeded));
+                        currentRouter = routerDest;
+                        ttlTimeExceeded--;
+                        currentDest = sourceNode;
                     } else if (!replyMode) {
                         output.add(messages.icmpRequestMessage(currentRouter.name(), routerDest.name(), sourceNode.ipAddress(), destNode.ipAddress(), ttlRequest));
                         currentRouter = routerDest;
@@ -159,6 +169,24 @@ public class Traceroute {
         return output;
     }
 
+    private RouterTableLine getRouterTableLine(Router currentRouter, String currentSourceIpAddress) {
+        String mask = this.mask.getMask(currentSourceIpAddress);
+        for (RouterTableLine routerTableLine :
+                currentRouter.routerTable().routerTableLines()) {
+            if (routerTableLine.netDest().equalsIgnoreCase(mask)) {
+                return routerTableLine;
+            }
+        }
+
+        for (RouterTableLine routerTableLine :
+                currentRouter.routerTable().routerTableLines()) {
+            if (routerTableLine.netDest().equalsIgnoreCase("0.0.0.0/0")) {
+                return routerTableLine;
+            }
+        }
+        throw new RuntimeException("Router not found in router table.");
+    }
+
     private NetInterface getNetInterfaceFromNode(Router router, String defaultGateway) {
         for (NetInterface netInterface : router.netInterfaces()) {
             if (netInterface.ipAddress().contains(defaultGateway)) {
@@ -170,7 +198,7 @@ public class Traceroute {
 
     private NetInterface getNetInterface(Node currentDest, Router currentRouter, List<RouterTableLine> routerTableLines) {
         for (RouterTableLine routerTableLine : routerTableLines) {
-            if (getMask(routerTableLine.netDest()).equalsIgnoreCase(getMask(currentDest.ipAddress()))) {
+            if (mask.getMaskBin(routerTableLine.netDest()).equalsIgnoreCase(mask.getMaskBin(currentDest.ipAddress()))) {
                 Integer port = routerTableLine.port();
                 return currentRouter.netInterfaces().get(port);
             }
@@ -209,34 +237,9 @@ public class Traceroute {
         throw new RuntimeException("Router not found");
     }
 
-    private RouterTableLine getRouterDest(Router actualRouter, String destIp) {
-        return actualRouter.routerTable().routerTableLines().stream().filter(routerTableLine -> routerTableLine.netDest().contains(getMask(destIp))).findFirst().orElse(actualRouter.routerTable().routerTableLines().get(actualRouter.routerTable().routerTableLines().size() - 1));
-    }
-
-    public String getMask(String destIp) {
-        var destBytes = destIp.split("\\.");
-        var prefix = Integer.parseInt(destIp.split("/")[1]);
-        var result = new StringBuilder();
-        for (int i = 0; i < 4; i++) {
-            if (prefix / 8 > i) {
-                result.append(destBytes[i]);
-            } else {
-                result.append("0");
-            }
-            if (i != 3) {
-                result.append(".");
-            }
-        }
-        return result.toString();
-    }
-
-    private String cleanIp(String sourceIp) {
-        return sourceIp.replaceAll("/.*", "");
-    }
-
     private boolean isAtSameNetwork(String sourceIp, String destIp) {
-        var maskSource = getMask(sourceIp);
-        var maskDest = getMask(destIp);
+        var maskSource = mask.getMaskBin(sourceIp);
+        var maskDest = mask.getMaskBin(destIp);
         return maskSource.equalsIgnoreCase(maskDest);
     }
 

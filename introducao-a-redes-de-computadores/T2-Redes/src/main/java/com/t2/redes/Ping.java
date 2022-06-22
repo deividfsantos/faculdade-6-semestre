@@ -6,9 +6,11 @@ import java.util.List;
 public class Ping {
 
     private final Messages messages;
+    private final Mask mask;
 
     public Ping() {
         this.messages = new Messages();
+        this.mask = new Mask();
     }
 
     public List<String> run(List<Node> nodes, List<Router> routers, String sourceName, String destName) {
@@ -63,7 +65,7 @@ public class Ping {
                         end = true;
                     }
                 } else {
-                    RouterTableLine routerTableLine = currentRouter.routerTable().routerTableLines().get(currentRouter.routerTable().routerTableLines().size() - 1);
+                    RouterTableLine routerTableLine = getRouterTableLine(currentRouter, currentDest.ipAddress());
                     Router routerDest = getRouter(routers, routerTableLine.nextHop());
                     NetInterface netInterfaceDest = getNetInterface(routerDest.netInterfaces(), routerTableLine.nextHop());
                     if (notContainsInArpTable(currentRouter.arpTable(), netInterfaceDest.ipAddress())) {
@@ -132,6 +134,28 @@ public class Ping {
         return output;
     }
 
+    private RouterTableLine getRouterTableLine(Router currentRouter, String currentSourceIpAddress) {
+        String mask = this.mask.getMask(currentSourceIpAddress);
+        for (RouterTableLine routerTableLine :
+                currentRouter.routerTable().routerTableLines()) {
+            if (routerTableLine.netDest().equalsIgnoreCase(mask)) {
+                return routerTableLine;
+            }
+        }
+
+        for (RouterTableLine routerTableLine :
+                currentRouter.routerTable().routerTableLines()) {
+            if (routerTableLine.netDest().equalsIgnoreCase("0.0.0.0/0")) {
+                return routerTableLine;
+            }
+        }
+        throw new RuntimeException("Router not found in router table.");
+    }
+
+    private List<RouterTableLine> getRouterTableLines(Router currentRouter) {
+        return currentRouter.routerTable().routerTableLines();
+    }
+
     private NetInterface getNetInterfaceFromNode(Router router, String defaultGateway) {
         for (NetInterface netInterface : router.netInterfaces()) {
             if (netInterface.ipAddress().contains(defaultGateway)) {
@@ -143,7 +167,7 @@ public class Ping {
 
     private NetInterface getNetInterface(Node currentDest, Router currentRouter, List<RouterTableLine> routerTableLines) {
         for (RouterTableLine routerTableLine : routerTableLines) {
-            if (getMask(routerTableLine.netDest()).equalsIgnoreCase(getMask(currentDest.ipAddress()))) {
+            if (mask.getMaskBin(routerTableLine.netDest()).equalsIgnoreCase(mask.getMaskBin(currentDest.ipAddress()))) {
                 Integer port = routerTableLine.port();
                 return currentRouter.netInterfaces().get(port);
             }
@@ -183,24 +207,7 @@ public class Ping {
     }
 
     private RouterTableLine getRouterDest(Router actualRouter, String destIp) {
-        return actualRouter.routerTable().routerTableLines().stream().filter(routerTableLine -> routerTableLine.netDest().contains(getMask(destIp))).findFirst().orElse(actualRouter.routerTable().routerTableLines().get(actualRouter.routerTable().routerTableLines().size() - 1));
-    }
-
-    public String getMask(String destIp) {
-        var destBytes = destIp.split("\\.");
-        var prefix = Integer.parseInt(destIp.split("/")[1]);
-        var result = new StringBuilder();
-        for (int i = 0; i < 4; i++) {
-            if (prefix / 8 > i) {
-                result.append(destBytes[i]);
-            } else {
-                result.append("0");
-            }
-            if (i != 3) {
-                result.append(".");
-            }
-        }
-        return result.toString();
+        return actualRouter.routerTable().routerTableLines().stream().filter(routerTableLine -> routerTableLine.netDest().contains(mask.getMaskBin(destIp))).findFirst().orElse(actualRouter.routerTable().routerTableLines().get(actualRouter.routerTable().routerTableLines().size() - 1));
     }
 
     private String cleanIp(String sourceIp) {
@@ -208,8 +215,8 @@ public class Ping {
     }
 
     private boolean isAtSameNetwork(String sourceIp, String destIp) {
-        var maskSource = getMask(sourceIp);
-        var maskDest = getMask(destIp);
+        var maskSource = mask.getMaskBin(sourceIp);
+        var maskDest = mask.getMaskBin(destIp);
         return maskSource.equalsIgnoreCase(maskDest);
     }
 
