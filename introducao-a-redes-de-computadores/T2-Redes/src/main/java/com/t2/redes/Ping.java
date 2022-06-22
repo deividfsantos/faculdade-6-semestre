@@ -33,9 +33,6 @@ public class Ping {
         var ttlReply = 8;
         var ttlTimeExceeded = 8;
         while (!end && ttlTimeExceeded > 0) {
-            if (output.contains("r5 ->> n6 : ICMP Echo Request<br/>src=10.0.0.10 dst=60.0.0.10 ttl=3")) {
-                System.out.print("");
-            }
             if (ttlReply == 0 || ttlRequest == 0) {
                 currentDest = destNode;
             }
@@ -131,8 +128,7 @@ public class Ping {
             }
         }
 
-        for (
-                var item : output) {
+        for (var item : output) {
             System.out.println(item);
         }
         return output;
