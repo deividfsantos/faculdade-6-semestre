@@ -20,10 +20,10 @@ public class Main {
 
         if (command.equalsIgnoreCase("ping")) {
             var ping = new Ping();
-            ping.run(nodes, routers, routerTables, sourceName, destName);
+            ping.run(nodes, routers, sourceName, destName);
         } else if (command.equalsIgnoreCase("traceroute")) {
             var traceroute = new Traceroute();
-            traceroute.run(nodes, routers, routerTables, sourceName, destName);
+            traceroute.run(nodes, routers, sourceName, destName);
         } else {
             System.out.println("Comando não encontrado.");
         }

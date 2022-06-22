@@ -64,7 +64,7 @@ class PingTest {
         var routerTables = new ArrayList<RouterTable>();
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
-        List<String> run = ping.run(nodes, routers, routerTables, "n1", "n2");
+        List<String> run = ping.run(nodes, routers, "n1", "n2");
         assertEquals(4, run.size());
         assertEquals("Note over n1 : ARP Request<br/>Who has 192.168.0.3? Tell 192.168.0.2", run.get(0));
         assertEquals("n2 ->> n1 : ARP Reply<br/>192.168.0.3 is at 00:00:00:00:00:02", run.get(1));
@@ -94,7 +94,7 @@ class PingTest {
         var routerTables = new ArrayList<RouterTable>();
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
-        List<String> run = ping.run(nodes, routers, routerTables, "n1", "n3");
+        List<String> run = ping.run(nodes, routers, "n1", "n3");
         assertEquals(8, run.size());
         assertEquals("Note over n1 : ARP Request<br/>Who has 192.168.0.1? Tell 192.168.0.2", run.get(0));
         assertEquals("r1 ->> n1 : ARP Reply<br/>192.168.0.1 is at 00:00:00:00:00:05", run.get(1));
@@ -138,7 +138,7 @@ class PingTest {
         var routerTables = new ArrayList<RouterTable>();
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
-        List<String> run = ping.run(nodes, routers, routerTables, "n1", "n2");
+        List<String> run = ping.run(nodes, routers, "n1", "n2");
         assertEquals(17, run.size());
         assertEquals("Note over n1 : ARP Request<br/>Who has 10.0.0.1? Tell 10.0.0.10", run.get(0));
         assertEquals("r1 ->> n1 : ARP Reply<br/>10.0.0.1 is at 00:00:00:00:00:10", run.get(1));
@@ -190,7 +190,7 @@ class PingTest {
         var routerTables = new ArrayList<RouterTable>();
         var structure = new Structure();
         structure.build(lines, nodes, routers, routerTables);
-        List<String> run = ping.run(nodes, routers, routerTables, "n1", "n2");
+        List<String> run = ping.run(nodes, routers, "n1", "n2");
         assertEquals(22, run.size());
         assertEquals("Note over n1 : ARP Request<br/>Who has 10.0.0.1? Tell 10.0.0.10", run.get(0));
         assertEquals("r1 ->> n1 : ARP Reply<br/>10.0.0.1 is at 00:00:00:00:00:10", run.get(1));

@@ -5,13 +5,13 @@ import java.util.List;
 
 public class Ping {
 
-    private Messages messages;
+    private final Messages messages;
 
     public Ping() {
         this.messages = new Messages();
     }
 
-    public List<String> run(List<Node> nodes, List<Router> routers, List<RouterTable> routerTables, String sourceName, String destName) {
+    public List<String> run(List<Node> nodes, List<Router> routers, String sourceName, String destName) {
         var output = new ArrayList<String>();
         var sourceNode = getNodeByName(nodes, sourceName);
         var destNode = getNodeByName(nodes, destName);
@@ -43,18 +43,18 @@ public class Ping {
                         output.add(messages.arpReplyMessage(currentDest.name(), currentRouter.name(), currentDest.ipAddress(), currentDest.macAddress()));
                         currentRouter.arpTable().add(new NetInterface(currentDest.ipAddress(), currentDest.macAddress()));
                         currentDest.arpTable().add(new NetInterface(netInterface.ipAddress(), netInterface.macAddress()));
-                    } else if (!replyMode) {
-                        output.add(messages.icmpRequestMessage(currentRouter.name(), currentDest.name(), sourceNode.ipAddress(), destNode.ipAddress(), ttlRequest));
-                        currentSource = currentDest;
-                        currentDest = sourceNode;
-                        replyMode = true;
-                        sourceMode = HardwareType.NODE;
                     } else if (ttlReply == 0 || ttlRequest == 0) {
                         output.add(messages.icmpTimeExceededMessage(currentRouter.name(), currentDest.name(), timeExceededSourceIp, destNode.ipAddress(), ttlTimeExceeded));
                         currentSource = currentDest;
                         currentDest = sourceNode;
                         ttlTimeExceeded--;
                         end = true;
+                    } else if (!replyMode) {
+                        output.add(messages.icmpRequestMessage(currentRouter.name(), currentDest.name(), sourceNode.ipAddress(), destNode.ipAddress(), ttlRequest));
+                        currentSource = currentDest;
+                        currentDest = sourceNode;
+                        replyMode = true;
+                        sourceMode = HardwareType.NODE;
                     } else {
                         Router router = getRouter(routers, currentSource.defaultGateway());
                         output.add(messages.icmpReplyMessage(currentRouter.name(), currentDest.name(), destNode.ipAddress(), sourceNode.ipAddress(), ttlReply));
@@ -104,13 +104,10 @@ public class Ping {
                     if (notContainsInArpTable(currentSource.arpTable(), currentSource.defaultGateway())) {
                         Router router = getRouter(routers, currentSource.defaultGateway());
                         output.add(messages.arpRequestMessage(currentSource.name(), currentSource.defaultGateway(), currentSource.ipAddress()));
-                        for (NetInterface netInterface : router.netInterfaces()) {
-                            if (netInterface.ipAddress().contains(currentSource.defaultGateway())) {
-                                output.add(messages.arpReplyMessage(router.name(), currentSource.name(), netInterface.ipAddress(), netInterface.macAddress()));
-                                currentSource.arpTable().add(netInterface);
-                                router.arpTable().add(new NetInterface(currentSource.ipAddress(), currentSource.macAddress()));
-                            }
-                        }
+                        var netInterface = getNetInterfaceFromNode(router, currentSource.defaultGateway());
+                        output.add(messages.arpReplyMessage(router.name(), currentSource.name(), netInterface.ipAddress(), netInterface.macAddress()));
+                        currentSource.arpTable().add(netInterface);
+                        router.arpTable().add(new NetInterface(currentSource.ipAddress(), currentSource.macAddress()));
                     } else if (!replyMode) {
                         Router router = getRouter(routers, currentSource.defaultGateway());
                         output.add(messages.icmpRequestMessage(currentSource.name(), router.name(), sourceNode.ipAddress(), destNode.ipAddress(), ttlRequest));
@@ -128,10 +125,20 @@ public class Ping {
             }
         }
 
-        for (var item : output) {
+        for (
+                var item : output) {
             System.out.println(item);
         }
         return output;
+    }
+
+    private NetInterface getNetInterfaceFromNode(Router router, String defaultGateway) {
+        for (NetInterface netInterface : router.netInterfaces()) {
+            if (netInterface.ipAddress().contains(defaultGateway)) {
+                return netInterface;
+            }
+        }
+        throw new RuntimeException("Network not found");
     }
 
     private NetInterface getNetInterface(Node currentDest, Router currentRouter, List<RouterTableLine> routerTableLines) {
